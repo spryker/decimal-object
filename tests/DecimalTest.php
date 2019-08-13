@@ -2,6 +2,7 @@
 
 namespace Spryker\Decimal\Test;
 
+use LogicException;
 use PHPUnit\Framework\TestCase;
 use Spryker\Decimal\Decimal;
 
@@ -78,6 +79,7 @@ class DecimalTest extends TestCase
             ['-5.000067', '-5.000067'],
             ['+5.000067', '5.000067'],
             ['0000005', '5'],
+            ['  0.0   ', '0'],
             ['6.22e8', '622000000'],
             ['6.22e18', '6220000000000000000'],
             [PHP_INT_MAX, (string)PHP_INT_MAX],
@@ -118,6 +120,87 @@ class DecimalTest extends TestCase
             ['0000', true],
             ['-0', true],
             ['+0', true],
+        ];
+    }
+
+    /**
+     * @dataProvider compareZeroProvider
+     *
+     * @param mixed $input
+     * @param int $expected
+     *
+     * @return void
+     */
+    public function testPositive($input, int $expected): void
+    {
+        $dec = new Decimal($input);
+        $this->assertSame($expected > 0, $dec->isPositive());
+    }
+
+    /**
+     * @dataProvider compareZeroProvider
+     *
+     * @param mixed $input
+     * @param int $expected
+     *
+     * @return void
+     */
+    public function testNegative($input, int $expected): void
+    {
+        $dec = new Decimal($input);
+        $this->assertSame($expected < 0, $dec->isNegative());
+    }
+
+    /**
+     * @return array
+     */
+    public function compareZeroProvider(): array
+    {
+        return [
+            [0, 0],
+            [1, 1],
+            [-1, -1],
+            [0.0, 0],
+            ['0', 0],
+            ['1', 1],
+            ['-1', -1],
+            ['00000', 0],
+            ['0.0', 0],
+            ['0.00001', 1],
+            ['1e-20', 1],
+            ['-1e-20', -1],
+        ];
+    }
+
+    /**
+     * @dataProvider precisionProvider
+     *
+     * @param mixed $input
+     * @param int $expected
+     *
+     * @return void
+     */
+    public function testPrecision($input, int $expected): void
+    {
+        $this->markTestSkipped('TBD');
+
+        $decimal = Decimal::create($input);
+        $this->assertSame($expected, $decimal->precision());
+    }
+
+    /**
+     * @return array
+     */
+    public function precisionProvider(): array
+    {
+        return [
+            [0, 0],
+            [1, 0],
+            [-1, 0],
+            ['12.375', 3],
+            ['-0.7', 1],
+            ['6.22e23', 0],
+            ['1e-10', 10],
         ];
     }
 
@@ -172,6 +255,57 @@ class DecimalTest extends TestCase
     /**
      * @return void
      */
+    public function testNegation(): void
+    {
+        $value = '-23.44';
+        $decimal = new Decimal($value);
+
+        $result = $decimal->negation();
+        $this->assertSame('23.44', (string)$result);
+
+        $again = $result->negation();
+        $this->assertSame($value, (string)$again);
+    }
+
+    /**
+     * @return void
+     */
+    public function testIsNegative(): void
+    {
+        $value = '-23.44';
+        $decimal = new Decimal($value);
+        $this->assertTrue($decimal->isNegative());
+
+        $value = '23.44';
+        $decimal = new Decimal($value);
+        $this->assertFalse($decimal->isNegative());
+
+        $value = '0';
+        $decimal = new Decimal($value);
+        $this->assertFalse($decimal->isNegative());
+    }
+
+    /**
+     * @return void
+     */
+    public function testIsPositive(): void
+    {
+        $value = '-23.44';
+        $decimal = new Decimal($value);
+        $this->assertFalse($decimal->isPositive());
+
+        $value = '23.44';
+        $decimal = new Decimal($value);
+        $this->assertTrue($decimal->isPositive());
+
+        $value = '0';
+        $decimal = new Decimal($value);
+        $this->assertFalse($decimal->isPositive());
+    }
+
+    /**
+     * @return void
+     */
     public function testEquals(): void
     {
         $value = '1.1';
@@ -182,6 +316,83 @@ class DecimalTest extends TestCase
 
         $result = $decimalOne->equals($decimalTwo);
         $this->assertTrue($result);
+    }
+
+    /**
+     * @dataProvider compareProvider
+     *
+     * @param mixed $a
+     * @param mixed $b
+     * @param int $expected
+     *
+     * @return void
+     */
+    public function testGreaterThan($a, $b, int $expected): void
+    {
+        $dec = new Decimal($a);
+        $this->assertSame($expected > 0, $dec->greaterThan($b));
+    }
+
+    /**
+     * @dataProvider compareProvider
+     *
+     * @param mixed $a
+     * @param mixed $b
+     * @param int $expected
+     *
+     * @return void
+     */
+    public function testLessThan($a, $b, int $expected): void
+    {
+        $dec = new Decimal($a);
+        $this->assertSame($expected < 0, $dec->lessThan($b));
+    }
+
+    /**
+     * @dataProvider compareProvider
+     *
+     * @param mixed $a
+     * @param mixed $b
+     * @param int $expected
+     *
+     * @return void
+     */
+    public function testGreaterEquals($a, $b, int $expected): void
+    {
+        $dec = new Decimal($a);
+        $this->assertSame($expected >= 0, $dec->greatherThanOrEquals($b));
+    }
+
+    /**
+     * @dataProvider compareProvider
+     *
+     * @param mixed $a
+     * @param mixed $b
+     * @param int $expected
+     *
+     * @return void
+     */
+    public function testLessEquals($a, $b, int $expected): void
+    {
+        $dec = new Decimal($a);
+        $this->assertSame($expected <= 0, $dec->lessThanOrEquals($b));
+    }
+
+    /**
+     * @return array
+     */
+    public function compareProvider(): array
+    {
+        return [
+            [0, 0, 0],
+            [1, 0, 1],
+            [-1, 0, -1],
+            ['12.375', '12.375', 0],
+            ['12.374', '12.375', -1],
+            ['12.376', '12.375', 1],
+            ['6.22e23', '6.22e23', 0],
+            ['1e-10', '1e-9', -1],
+        ];
     }
 
     /**
@@ -212,6 +423,102 @@ class DecimalTest extends TestCase
 
         $result = $decimalOne->subtract($decimalTwo);
         $this->assertSame('0.09', (string)$result);
+    }
+
+    /**
+     * @dataProvider multiplicationProvider
+     *
+     * @param mixed $a
+     * @param mixed $b
+     * @param int|null $precision
+     * @param string $expected
+     *
+     * @return void
+     */
+    public function testMultiply($a, $b, ?int $precision, string $expected): void
+    {
+        $dec = new Decimal($a);
+        $this->assertSame($expected, (string)$dec->multiply($b, $precision));
+    }
+
+    /**
+     * @return array
+     */
+    public function multiplicationProvider(): array
+    {
+        return [
+            ['0', '0', null, '0'],
+            ['1', '10', null, '10'],
+            ['1000', '10', null, '10000'],
+            ['-10', '10', null, '-100'],
+            ['10', '-10', null, '-100'],
+            ['10', '10', null, '100'],
+            ['0.1', '1', null, '0.1'],
+            ['0.1', '0.01', null, '0.001'],
+            ['-0.001', '0.01', null, '-0.00001'],
+            ['0', '0', 3, '0'],
+            ['9', '0.001', 3, '0.009'],
+            ['9', '0.001', 0, '0'],
+            ['1e-10', '28', null, '0.0000000028'],
+            ['1e-10', '-1e-10', null, '-0.00000000000000000001'],
+            ['1e-10', '-1e-10', 20, '-0.00000000000000000001'],
+            ['1e-10', '-1e-10', 19, '0'],
+        ];
+    }
+
+    /**
+     * @dataProvider divisionProvider
+     *
+     * @param mixed $a
+     * @param mixed $b
+     * @param int|null $precision
+     * @param string $expected
+     *
+     * @return void
+     */
+    public function testDivide($a, $b, ?int $precision, string $expected): void
+    {
+        $dec = new Decimal($a);
+        $this->assertSame($expected, (string)$dec->divide($b, $precision));
+    }
+
+    /**
+     * @return void
+     */
+    public function testDivideByZero(): void
+    {
+        $dec = new Decimal(1);
+
+        $this->expectException(LogicException::class);
+
+        $dec->divide(0);
+    }
+
+    /**
+     * @return array
+     */
+    public function divisionProvider(): array
+    {
+        return [
+            ['0', '1', null, '0'],
+            ['1', '1', null, '1'],
+            ['0', '1e6', null, '0'],
+            [1, 10, 1, '0.1'],
+            ['1000', '10', null, '100'],
+            ['-10', '10', null, '-1'],
+            ['10', '-10', null, '-1'],
+            ['10', '10', null, '1'],
+            ['0.1', '1', null, '0.1'],
+            ['0.1', '0.01', null, '10'],
+            ['-0.001', '0.01', 1, '-0.1'],
+            ['1', '3', 3, '0.333'],
+            ['1', '3', 0, '0'],
+            //['6.22e23', '2', null, '311000000000000000000000'],
+            //['6.22e23', '-1', null, '-622000000000000000000000'],
+            //['1e-10', 3, null, '0'],
+            //['1e-10', 3, 11, '0.00000000003'],
+            //['1e-10', 3, 12, '0.000000000033'],
+        ];
     }
 
     /**

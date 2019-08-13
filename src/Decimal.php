@@ -2,6 +2,7 @@
 namespace Spryker\Decimal;
 
 use InvalidArgumentException;
+use LogicException;
 
 class Decimal
 {
@@ -68,7 +69,7 @@ class Decimal
             $value = '-0.' . substr($value, 2);
         }
 
-        return $value;
+        return trim($value);
     }
 
     /**
@@ -147,6 +148,26 @@ class Decimal
     public function lessThan($value): bool
     {
         return $this->compareTo($value) < 0;
+    }
+
+    /**
+     * @param string|int|static $value
+     *
+     * @return bool
+     */
+    public function greatherThanOrEquals($value): bool
+    {
+        return ($this->compareTo($value) >= 0);
+    }
+
+    /**
+     * @param string|int|static $value
+     *
+     * @return bool
+     */
+    public function lessThanOrEquals($value): bool
+    {
+        return ($this->compareTo($value) <= 0);
     }
 
     /**
@@ -260,13 +281,23 @@ class Decimal
     }
 
     /**
-     * Absolute
+     * Returns the absolute (positive) value of this decimal.
      *
-     * @return static The absolute (positive) value of this decimal.
+     * @return static
      */
     public function abs()
     {
         return $this->copy($this->integerPart, $this->decimalPart, false);
+    }
+
+    /**
+     * Returns the negation.
+     *
+     * @return static
+     */
+    public function negation()
+    {
+        return $this->copy(null, null, !$this->isNegative());
     }
 
     /**
@@ -275,6 +306,62 @@ class Decimal
     public function isZero(): bool
     {
         return $this->integerPart === 0 && $this->decimalPart === '';
+    }
+
+    /**
+     * @return bool
+     */
+    public function isNegative(): bool
+    {
+        return $this->negative;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPositive(): bool
+    {
+        return !$this->negative && !$this->isZero();
+    }
+
+    /**
+     * Multiply this Decimal by $value and return the product as a new Decimal.
+     *
+     * @param string|int|static $value
+     * @param int|null $precision
+     *
+     * @return static
+     */
+    public function multiply($value, ?int $precision = null)
+    {
+        $decimal = static::create($value);
+        if ($precision === null) {
+            $precision = $this->precision() + $decimal->precision();
+        }
+
+        return new static(bcmul($this, $decimal, $precision));
+    }
+
+    /**
+     * Divide this Decimal by $value and return the quotient as a new Decimal.
+     *
+     * @param string|int|static $value
+     * @param int|null $precision
+     *
+     * @throws \LogicException if $value is zero.
+     *
+     * @return static
+     */
+    public function divide($value, ?int $precision = null)
+    {
+        $decimal = static::create($value);
+        if ($decimal->isZero()) {
+            throw new LogicException('Cannot divide by zero. Only Chuck Norris can!');
+        }
+
+        $precision = static::resultPrecision($this, $decimal, $precision);
+
+        return new static(bcdiv($this, $decimal, $precision));
     }
 
     /**
