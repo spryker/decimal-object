@@ -35,9 +35,9 @@ class Decimal
 
     /**
      * @param string|int|static $value
-     * @param int $precision
+     * @param int|null $precision
      */
-    public function __construct($value, int $precision = Decimal::DEFAULT_PRECISION)
+    public function __construct($value, ?int $precision = null)
     {
         if (!is_string($value)) {
             $value = (string)$value;
@@ -46,7 +46,15 @@ class Decimal
         $value = $this->normalizeValue($value);
 
         $this->setValue($value);
-        $this->precision = $precision;
+        $this->precision = $precision ?? static::DEFAULT_PRECISION;
+    }
+
+    /**
+     * @return int
+     */
+    public function precision(): int
+    {
+        return $this->precision;
     }
 
     /**
@@ -156,7 +164,7 @@ class Decimal
     public function compareTo($value): int
     {
         $decimal = static::create($value);
-        $scale = max($this->getScale(), $decimal->getScale());
+        $scale = max($this->precision(), $decimal->precision());
 
         return bccomp($this, $decimal, $scale);
     }
@@ -172,9 +180,30 @@ class Decimal
     public function add($value, ?int $scale = null)
     {
         $decimal = static::create($value);
-        $scale = static::resultScale($this, $decimal, $scale);
+        $scale = static::resultPrecision($this, $decimal, $scale);
 
         return new static(bcadd($this, $decimal, $scale));
+    }
+
+    /**
+     * Return an appropriate scale for an arithmetic operation on two Decimals.
+     *
+     * If $scale is specified and is a valid positive integer, return it.
+     * Otherwise, return the higher of the scales of the operands.
+     *
+     * @param static $a
+     * @param static $b
+     * @param int|null $scale
+     *
+     * @return int
+     */
+    protected static function resultPrecision($a, $b, ?int $scale = null): int
+    {
+        if ($scale === null) {
+            $scale = max($a->precision(), $b->precision());
+        }
+
+        return $scale;
     }
 
     /**
@@ -189,24 +218,31 @@ class Decimal
     public function subtract($value, ?int $scale = null)
     {
         $decimal = static::create($value);
-        $scale = static::resultScale($this, $decimal, $scale);
+        $scale = static::resultPrecision($this, $decimal, $scale);
 
         return new static(bcsub($this, $decimal, $scale));
     }
 
     /**
-     * Trims trailing zeroes.
+     * Does not remove precision - keeps trailing zeroes.
      *
-     * @return static A copy of this decimal without trailing zeroes.
+     * @return string
      */
-    public function trim()
+    public function toStringWithPrecision(): string
     {
-        $decimals = $this->decimalPart;
-        $decimals = rtrim($decimals, '0') ?: '0';
+        $decimalPart = $this->decimalPart !== '' ? '.' . str_pad($this->decimalPart, $this->precision, '0') : '';
 
-        $value = $this->integerPart . '.' . $decimals;
+        return ($this->negative ? '-' : '') . $this->integerPart . $decimalPart;
+    }
 
-        return new static($value);
+    /**
+     * @param string $value
+     *
+     * @return string
+     */
+    protected function trimDecimals(string $value): string
+    {
+        return rtrim($value, '0') ?: '';
     }
 
     /**
@@ -327,7 +363,7 @@ class Decimal
 
             $this->negative = $before < 0 || $before === 0 && $after !== '' && strpos($value, '-') === 0;
             $this->integerPart = abs($before);
-            $this->decimalPart = $after;
+            $this->decimalPart = $this->trimDecimals($after);
 
             return;
         }

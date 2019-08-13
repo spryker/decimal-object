@@ -136,6 +136,18 @@ class DecimalTest extends TestCase
     /**
      * @return void
      */
+    public function testToStringWithPrecision(): void
+    {
+        $value = '-2.0300000000000000000000000000';
+        $decimal = new Decimal($value);
+
+        $result = $decimal->toStringWithPrecision();
+        $this->assertSame($value, $result);
+    }
+
+    /**
+     * @return void
+     */
     public function testToFloat(): void
     {
         $value = '-23.44';
@@ -162,16 +174,44 @@ class DecimalTest extends TestCase
      */
     public function testEquals(): void
     {
-        $this->markTestSkipped('TODO');
-
         $value = '1.1';
         $decimalOne = new Decimal($value);
 
-        $value = '1.1';
+        $value = '1.10';
         $decimalTwo = new Decimal($value);
 
         $result = $decimalOne->equals($decimalTwo);
         $this->assertTrue($result);
+    }
+
+    /**
+     * @return void
+     */
+    public function testAdd(): void
+    {
+        $value = '1.1';
+        $decimalOne = new Decimal($value);
+
+        $value = '1.2';
+        $decimalTwo = new Decimal($value);
+
+        $result = $decimalOne->add($decimalTwo);
+        $this->assertSame('2.3', (string)$result);
+    }
+
+    /**
+     * @return void
+     */
+    public function testSubtract(): void
+    {
+        $value = '0.1';
+        $decimalOne = new Decimal($value);
+
+        $value = '0.01';
+        $decimalTwo = new Decimal($value);
+
+        $result = $decimalOne->subtract($decimalTwo);
+        $this->assertSame('0.09', (string)$result);
     }
 
     /**
