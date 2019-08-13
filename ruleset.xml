@@ -7,7 +7,7 @@
         All sniffs in ./Sniffs will be auto loaded
     </description>
 
-    <rule ref="vendor/spryker/code-sniffer/Spryker/ruleset.xml"/>
+    <rule ref="vendor/spryker/code-sniffer/SprykerStrict/ruleset.xml"/>
 
     <rule ref="PSR2.Methods.MethodDeclaration.Underscore">
         <severity>0</severity>

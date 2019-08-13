@@ -116,7 +116,7 @@ class Decimal
      *
      * @return static
      */
-    public function add($value, $scale = null)
+    public function add($value, ?int $scale = null)
     {
         $decimal = static::create($value);
         $scale = static::resultScale($this, $decimal, $scale);
@@ -133,7 +133,7 @@ class Decimal
      *
      * @return static
      */
-    public function subtract($value, $scale = null)
+    public function subtract($value, ?int $scale = null)
     {
         $decimal = static::create($value);
         $scale = static::resultScale($this, $decimal, $scale);
@@ -177,7 +177,7 @@ class Decimal
      *
      * @return float
      */
-    public function toFloat()
+    public function toFloat(): float
     {
         return (float)$this->value;
     }
@@ -218,7 +218,7 @@ class Decimal
      *
      * @return array
      */
-    public function __debugInfo()
+    public function __debugInfo(): array
     {
         return [
             'value' => $this->value,

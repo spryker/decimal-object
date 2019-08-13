@@ -48,6 +48,18 @@ class DecimalTest extends TestCase
     /**
      * @return void
      */
+    public function testToFloat(): void
+    {
+        $value = '-23.44';
+        $decimal = new Decimal($value);
+
+        $result = $decimal->toFloat();
+        $this->assertSame(-23.44, $result);
+    }
+
+    /**
+     * @return void
+     */
     public function testEquals(): void
     {
         $this->markTestSkipped('TODO');
@@ -60,5 +72,21 @@ class DecimalTest extends TestCase
 
         $result = $decimalOne->equals($decimalTwo);
         $this->assertTrue($result);
+    }
+
+    /**
+     * @return void
+     */
+    public function testDebugInfo(): void
+    {
+        $value = '1.1';
+        $decimal = new Decimal($value);
+
+        $result = $decimal->__debugInfo();
+        $expected = [
+            'value' => $value,
+            'precision' => Decimal::DEFAULT_PRECISION,
+        ];
+        $this->assertEquals($expected, $result);
     }
 }
