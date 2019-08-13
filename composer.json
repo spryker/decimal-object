@@ -1,0 +1,38 @@
+{
+    "name": "spryker/decimal",
+    "description": "PHP decimal handling as value object",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Spryker Systems GmbH",
+            "homepage": "https://spryker.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.1",
+        "ext-bcmath": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8.0.0",
+        "spryker/code-sniffer": "@stable",
+        "phpstan/phpstan-shim": "^0.11"
+    },
+    "autoload": {
+        "psr-4": {
+            "Spryker\\Decimal\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Spryker\\Decimal\\Test\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "test-coverage" : "phpunit --log-junit tmp/coverage/unitreport.xml --coverage-html tmp/coverage --coverage-clover tmp/coverage/coverage.xml",
+        "phpstan": "vendor/bin/phpstan.phar analyse -c tests/phpstan.neon -l 7 src/",
+        "cs-check": "vendor/bin/phpcs --colors --standard=ruleset.xml -s -p src/ tests/",
+        "cs-fix": "vendor/bin/phpcbf --colors --standard=ruleset.xml -p src/ tests/"
+    }
+}

@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<ruleset name="SprykerProject">
+    <description>
+        Spryker Coding Standard.
+
+        Extends main Spryker Coding Standard.
+        All sniffs in ./Sniffs will be auto loaded
+    </description>
+
+    <rule ref="vendor/spryker/code-sniffer/Spryker/ruleset.xml"/>
+
+    <rule ref="PSR2.Methods.MethodDeclaration.Underscore">
+        <severity>0</severity>
+    </rule>
+    <rule ref="PSR2.Classes.PropertyDeclaration.Underscore">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Define your own sniffs here -->
+
+</ruleset>
