@@ -1,18 +1,32 @@
 <?php
 namespace Spryker\Decimal;
 
+use InvalidArgumentException;
+
 class Decimal
 {
     public const DEFAULT_PRECISION = 28;
+    public const EXP_MARK = 'e';
+    public const RADIX_MARK = '.';
 
     /**
-     * Internal value.
+     * Value before the separator. Cannot be negative.
      *
-     * TODO: separate into digits,exponent,negative? or int,float,negative
+     * @var int
+     */
+    protected $integerPart;
+
+    /**
+     * Value after the separator (decimals) as string. Must be numbers only.
      *
      * @var string
      */
-    protected $value;
+    protected $decimalPart;
+
+    /**
+     * @var bool
+     */
+    protected $negative;
 
     /**
      * @var int
@@ -29,8 +43,47 @@ class Decimal
             $value = (string)$value;
         }
 
-        $this->value = $value;
+        $value = $this->normalizeValue($value);
+
+        $this->setValue($value);
         $this->precision = $precision;
+    }
+
+    /**
+     * @param string $value
+     *
+     * @return string
+     */
+    protected function normalizeValue(string $value): string
+    {
+        if (strpos($value, '-.') === 0) {
+            $value = '-0.' . substr($value, 2);
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param int|null $integerPart
+     * @param string|null $decimalPart
+     * @param bool|null $negative
+     *
+     * @return static
+     */
+    protected function copy(?int $integerPart = null, ?string $decimalPart = null, ?bool $negative = null)
+    {
+        $clone = clone($this);
+        if ($integerPart !== null) {
+            $clone->integerPart = $integerPart;
+        }
+        if ($decimalPart !== null) {
+            $clone->decimalPart = $decimalPart;
+        }
+        if ($negative !== null) {
+            $clone->negative = $negative;
+        }
+
+        return $clone;
     }
 
     /**
@@ -148,6 +201,12 @@ class Decimal
      */
     public function trim()
     {
+        $decimals = $this->decimalPart;
+        $decimals = rtrim($decimals, '0') ?: '0';
+
+        $value = $this->integerPart . '.' . $decimals;
+
+        return new static($value);
     }
 
     /**
@@ -157,6 +216,11 @@ class Decimal
      */
     public function signum(): int
     {
+        if ($this->isZero()) {
+            return 0;
+        }
+
+        return $this->negative ? -1 : 1;
     }
 
     /**
@@ -166,6 +230,15 @@ class Decimal
      */
     public function abs()
     {
+        return $this->copy($this->integerPart, $this->decimalPart, false);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isZero(): bool
+    {
+        return $this->integerPart === 0 && $this->decimalPart === '';
     }
 
     /**
@@ -179,7 +252,7 @@ class Decimal
      */
     public function toFloat(): float
     {
-        return (float)$this->value;
+        return (float)$this->toString();
     }
 
     /**
@@ -197,7 +270,9 @@ class Decimal
      */
     public function toString(): string
     {
-        return (string)$this->value;
+        $decimalPart = $this->decimalPart !== '' ? '.' . $this->decimalPart : '';
+
+        return ($this->negative ? '-' : '') . $this->integerPart . $decimalPart;
     }
 
     /**
@@ -221,8 +296,61 @@ class Decimal
     public function __debugInfo(): array
     {
         return [
-            'value' => $this->value,
+            'value' => $this->toString(),
             'precision' => $this->precision,
         ];
+    }
+
+    /**
+     * Separates int and decimal parts and adds them to the state.
+     *
+     * - Removes leading 0 on int part
+     * - '0.00001' can also come in as '1.0E-5'
+     *
+     * @param string $value
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return void
+     */
+    protected function setValue(string $value): void
+    {
+        if (!preg_match('#e#i', $value)) {
+            $separatorPos = strpos($value, '.');
+            if ($separatorPos !== false) {
+                $before = (int)substr($value, 0, $separatorPos);
+                $after = substr($value, $separatorPos + 1);
+            } else {
+                $before = (int)$value;
+                $after = '';
+            }
+
+            $this->negative = $before < 0 || $before === 0 && $after !== '' && strpos($value, '-') === 0;
+            $this->integerPart = abs($before);
+            $this->decimalPart = $after;
+
+            return;
+        }
+
+        $pattern = '/^(-?)(\d+(?:' . static::RADIX_MARK . '\d*)?|' .
+            '[' . static::RADIX_MARK . ']' . '\d+)' . static::EXP_MARK . '(-?\d*)?$/i';
+        preg_match($pattern, $value, $matches);
+        if (!$matches) {
+            throw new InvalidArgumentException('Invalid value/notation: ' . $value);
+        }
+
+        $negativeChar = $matches[1];
+        $value = (float)$matches[2];
+        $exp = (int)$matches[3];
+
+        if ($exp < 0) {
+            $this->integerPart = 0;
+            $this->decimalPart = str_repeat('0', -$exp - 1) . $value;
+        } else {
+            $this->integerPart = (int)($value * pow(10, $exp));
+            $this->decimalPart = '';
+        }
+
+        $this->negative = $negativeChar === '-';
     }
 }
