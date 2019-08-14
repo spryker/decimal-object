@@ -12,18 +12,22 @@ class Decimal implements JsonSerializable
     public const RADIX_MARK = '.';
 
     /**
+     * Integral part of this decimal number.
+     *
      * Value before the separator. Cannot be negative.
      *
      * @var int
      */
-    protected $integerPart;
+    protected $integralPart;
 
     /**
+     * Fractional part of this decimal number.
+     *
      * Value after the separator (decimals) as string. Must be numbers only.
      *
      * @var string
      */
-    protected $decimalPart;
+    protected $fractionalPart;
 
     /**
      * @var bool
@@ -84,10 +88,10 @@ class Decimal implements JsonSerializable
     {
         $clone = clone($this);
         if ($integerPart !== null) {
-            $clone->integerPart = $integerPart;
+            $clone->integralPart = $integerPart;
         }
         if ($decimalPart !== null) {
-            $clone->decimalPart = $decimalPart;
+            $clone->fractionalPart = $decimalPart;
         }
         if ($negative !== null) {
             $clone->negative = $negative;
@@ -252,9 +256,9 @@ class Decimal implements JsonSerializable
      */
     public function toStringWithPrecision(): string
     {
-        $decimalPart = $this->decimalPart !== '' ? '.' . str_pad($this->decimalPart, $this->precision, '0') : '';
+        $decimalPart = $this->fractionalPart !== '' ? '.' . str_pad($this->fractionalPart, $this->precision, '0') : '';
 
-        return ($this->negative ? '-' : '') . $this->integerPart . $decimalPart;
+        return ($this->negative ? '-' : '') . $this->integralPart . $decimalPart;
     }
 
     /**
@@ -288,7 +292,7 @@ class Decimal implements JsonSerializable
      */
     public function absolute()
     {
-        return $this->copy($this->integerPart, $this->decimalPart, false);
+        return $this->copy($this->integralPart, $this->fractionalPart, false);
     }
 
     /**
@@ -306,7 +310,7 @@ class Decimal implements JsonSerializable
      */
     public function isZero(): bool
     {
-        return $this->integerPart === 0 && $this->decimalPart === '';
+        return $this->integralPart === 0 && $this->fractionalPart === '';
     }
 
     /**
@@ -406,9 +410,9 @@ class Decimal implements JsonSerializable
      */
     public function toString(): string
     {
-        $decimalPart = $this->decimalPart !== '' ? '.' . $this->decimalPart : '';
+        $decimalPart = $this->fractionalPart !== '' ? '.' . $this->fractionalPart : '';
 
-        return ($this->negative ? '-' : '') . $this->integerPart . $decimalPart;
+        return ($this->negative ? '-' : '') . $this->integralPart . $decimalPart;
     }
 
     /**
@@ -470,8 +474,8 @@ class Decimal implements JsonSerializable
             }
 
             $this->negative = $before < 0 || $before === 0 && $after !== '' && strpos($value, '-') === 0;
-            $this->integerPart = abs($before);
-            $this->decimalPart = $this->trimDecimals($after);
+            $this->integralPart = abs($before);
+            $this->fractionalPart = $this->trimDecimals($after);
 
             return;
         }
@@ -488,11 +492,11 @@ class Decimal implements JsonSerializable
         $exp = (int)$matches[3];
 
         if ($exp < 0) {
-            $this->integerPart = 0;
-            $this->decimalPart = str_repeat('0', -$exp - 1) . $value;
+            $this->integralPart = 0;
+            $this->fractionalPart = str_repeat('0', -$exp - 1) . $value;
         } else {
-            $this->integerPart = (int)($value * pow(10, $exp));
-            $this->decimalPart = '';
+            $this->integralPart = (int)($value * pow(10, $exp));
+            $this->fractionalPart = '';
         }
 
         $this->negative = $negativeChar === '-';

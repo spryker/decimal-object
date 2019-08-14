@@ -45,9 +45,9 @@ The following libraries are using the `Decimal` value object:
 
 ## TODO
 - Rounding
-- ceil()/floor()?
-- toInt()
-- Edge case values (very small values)
-- sum(), average(), max(), min() as static methods?
-- modulo()?
-- shift()?
+- ceil()/floor() ?
+- Assert/check edge case values (very small values)
+- sum(), average(), max(), min() as static methods ?
+- modulo()/power() ?
+- shift() ?
+- API naming `add() => plus()`, `subtract() => minus()`, `multiply() => multipliedBy()`, `divide() => devidedBy()` ?
