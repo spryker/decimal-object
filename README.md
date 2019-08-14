@@ -13,7 +13,7 @@ servers to be available.
 
 ## Features
 
-- Basic operations supported
+- Basic math operations supported
 - Immutability
 
 Note: This library is a sandbox/showcase and for testing right now only.
@@ -23,23 +23,17 @@ Use with Caution.
 
 ### Requirements
 
-- bcmath extension
+- `bcmath` PHP extension enabled
 
 ### Composer (preferred)
 ```
 composer require spryker/decimal:dev-master
 ```
 
-Also for now:
-```
-"repositories": [
-    {
-        "type": "git",
-        "url": "git@github.com:spryker/decimal.git"
-    }
-],
-```
-
 ## Usage
 
 See [Documentation](/docs) for more details.
+
+## TODO
+- Rounding
+- Edge case values (very small values)
