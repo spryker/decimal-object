@@ -35,7 +35,7 @@ class Decimal
     protected $precision;
 
     /**
-     * @param string|int|static $value
+     * @param string|int|float|static $value
      * @param int|null $precision
      */
     public function __construct($value, ?int $precision = null)
@@ -102,7 +102,7 @@ class Decimal
      * Otherwise, create a new Decimal instance from the given value and return
      * it.
      *
-     * @param string|int|static $value
+     * @param string|int|float|static $value
      *
      * @return static
      */
@@ -120,7 +120,7 @@ class Decimal
      *
      * This method is equivalent to the `==` operator.
      *
-     * @param string|int|static $value
+     * @param string|int|float|static $value
      *
      * @return bool TRUE if this decimal is considered equal to the given value.
      *  Equal decimal values tie-break on precision.
@@ -131,7 +131,7 @@ class Decimal
     }
 
     /**
-     * @param string|int|static $value
+     * @param string|int|float|static $value
      *
      * @return bool
      */
@@ -141,7 +141,7 @@ class Decimal
     }
 
     /**
-     * @param string|int|static $value
+     * @param string|int|float|static $value
      *
      * @return bool
      */
@@ -151,7 +151,7 @@ class Decimal
     }
 
     /**
-     * @param string|int|static $value
+     * @param string|int|float|static $value
      *
      * @return bool
      */
@@ -161,7 +161,7 @@ class Decimal
     }
 
     /**
-     * @param string|int|static $value
+     * @param string|int|float|static $value
      *
      * @return bool
      */
@@ -178,7 +178,7 @@ class Decimal
      * - `0` if the instance is equal to $value, or
      * - `1` if the instance is greater than $value.
      *
-     * @param string|int|static $value
+     * @param string|int|float|static $value
      *
      * @return int
      */
@@ -193,7 +193,7 @@ class Decimal
     /**
      * Add $value to this Decimal and return the sum as a new Decimal.
      *
-     * @param string|int|static $value
+     * @param string|int|float|static $value
      * @param int|null $scale
      *
      * @return static
@@ -231,7 +231,7 @@ class Decimal
      * Subtract $value from this Decimal and return the difference as a new
      * Decimal.
      *
-     * @param string|int|static $value
+     * @param string|int|float|static $value
      * @param int|null $scale
      *
      * @return static
@@ -327,7 +327,7 @@ class Decimal
     /**
      * Multiply this Decimal by $value and return the product as a new Decimal.
      *
-     * @param string|int|static $value
+     * @param string|int|float|static $value
      * @param int|null $precision
      *
      * @return static
@@ -345,7 +345,7 @@ class Decimal
     /**
      * Divide this Decimal by $value and return the quotient as a new Decimal.
      *
-     * @param string|int|static $value
+     * @param string|int|float|static $value
      * @param int|null $precision
      *
      * @throws \LogicException if $value is zero.

@@ -27,7 +27,7 @@ Use with Caution.
 
 ### Composer (preferred)
 ```
-composer require spryker/decimal
+composer require spryker/decimal:dev-master
 ```
 
 Also for now:
@@ -36,7 +36,7 @@ Also for now:
     {
         "type": "git",
         "url": "git@github.com:spryker/decimal.git"
-    },
+    }
 ],
 ```
 
