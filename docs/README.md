@@ -37,7 +37,6 @@ These return a new object:
 - `signum()`: Returns int `0` if zero, `-1` if negative, or `1` if positive.
 - `abs()`: Returns the absolute (positive) value of this decimal.
 - `negation()`: Retuens the negation (positive if negative and vice versa).
-- `abs()`: 
 
 Also:
 - `toString()`: Default casting mechanism (this method is equivalent to a cast to string).
