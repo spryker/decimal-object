@@ -28,6 +28,13 @@
             "Spryker\\Decimal\\Test\\": "tests/"
         }
     },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.x-dev"
+        }
+    },
     "scripts": {
         "test": "phpunit",
         "test-coverage" : "phpunit --log-junit tmp/coverage/unitreport.xml --coverage-html tmp/coverage --coverage-clover tmp/coverage/coverage.xml",
