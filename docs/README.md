@@ -46,6 +46,8 @@ Also:
 
 There is only one static method and acts as a convenience wrapper to create an object:
 - `create()`: Internally does `new Decimal($value)`, allows for easier chaining without need of `()` wrapping.
+  Use this if your input can already be the `Decimal` object as it will then just be re-used. Constructor creation
+  builds a new object.
 
 ### Comparison
 

@@ -1,5 +1,6 @@
 #  Decimal Value Object
 
+[![License](https://poser.pugx.org/spryker/decimal/license)](https://packagist.org/packages/spryker/decimal)
 [![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%207.1-8892BF.svg)](https://php.net/)
 
 Decimal value object for PHP.
@@ -8,16 +9,18 @@ Decimal value object for PHP.
 When working with monetary values, normal data types like int or float are not suitable for exact arithmetic.
 Handling them as string is a workaround, but as value object you can more easily encapsulate some of the logic. 
 
-Solutions like https://php-decimal.io require a PHP extension. This makes it faster, but also more difficult for some
-servers to be available.
+### Alternatives
+Solutions like https://php-decimal.io require a PHP extension (would make it faster, but also more difficult for some
+servers to be available). For details see [wiki](https://github.com/spryker/decimal/wiki).
 
 ## Features
 
-- Basic math operations supported
+- Basic math operations and checks supported
 - Immutability
+- Handle very large and very small numbers
 
 Note: This library is a sandbox/showcase and for testing right now only.
-Use with Caution.
+Alpha-version. Use with Caution.
 
 ## Installation
 
@@ -33,6 +36,12 @@ composer require spryker/decimal:dev-master
 ## Usage
 
 See [Documentation](/docs) for more details.
+
+### Implementations
+The following libraries are using the `Decimal` value object:
+
+- [dereuromark/cakephp-decimal](https://github.com/dereuromark/cakephp-decimal) as decimal type replacement for CakePHP ORM.
+
 
 ## TODO
 - Rounding
