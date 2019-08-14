@@ -36,10 +36,9 @@ See [Documentation](/docs) for more details.
 
 ## TODO
 - Rounding
-- ceil()/floor()
+- ceil()/floor()?
 - toInt()
 - Edge case values (very small values)
 - sum(), average(), max(), min() as static methods?
 - modulo()?
 - shift()?
-- isEven()/isOdd()?

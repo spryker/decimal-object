@@ -102,7 +102,7 @@ class DecimalTest extends TestCase
     public function testIsZero($value, bool $expected): void
     {
         $decimal = Decimal::create($value);
-        $this->assertSame($expected, $decimal->isZero()); //'value `' . $value . '` is `' . (int)$decimal->isZero() . '` expected `' . (int)$expected . '`'
+        $this->assertSame($expected, $decimal->isZero());
     }
 
     /**
@@ -131,7 +131,7 @@ class DecimalTest extends TestCase
      *
      * @return void
      */
-    public function testPositive($input, int $expected): void
+    public function testIsPositive($input, int $expected): void
     {
         $dec = new Decimal($input);
         $this->assertSame($expected > 0, $dec->isPositive());
@@ -145,7 +145,7 @@ class DecimalTest extends TestCase
      *
      * @return void
      */
-    public function testNegative($input, int $expected): void
+    public function testIsNegative($input, int $expected): void
     {
         $dec = new Decimal($input);
         $this->assertSame($expected < 0, $dec->isNegative());
@@ -243,12 +243,24 @@ class DecimalTest extends TestCase
     /**
      * @return void
      */
-    public function testAbs(): void
+    public function testToInt(): void
+    {
+        $value = '-23.74';
+        $decimal = new Decimal($value);
+
+        $result = $decimal->toInt();
+        $this->assertSame(-23, $result);
+    }
+
+    /**
+     * @return void
+     */
+    public function testAbsolute(): void
     {
         $value = '-23.44';
         $decimal = new Decimal($value);
 
-        $result = $decimal->abs();
+        $result = $decimal->absolute();
         $this->assertSame('23.44', (string)$result);
     }
 
@@ -270,7 +282,7 @@ class DecimalTest extends TestCase
     /**
      * @return void
      */
-    public function testIsNegative(): void
+    public function testIsNegativeBasic(): void
     {
         $value = '-23.44';
         $decimal = new Decimal($value);
@@ -288,7 +300,7 @@ class DecimalTest extends TestCase
     /**
      * @return void
      */
-    public function testIsPositive(): void
+    public function testIsPositiveBasic(): void
     {
         $value = '-23.44';
         $decimal = new Decimal($value);

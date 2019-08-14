@@ -34,15 +34,15 @@ Boolean checks:
 ### Operations
 
 These return a new object:
-- `signum()`: Returns int `0` if zero, `-1` if negative, or `1` if positive.
-- `abs()`: Returns the absolute (positive) value of this decimal.
-- `negation()`: Retuens the negation (positive if negative and vice versa).
-- `abs()`: 
+- `sign()`: Returns int `0` if zero, `-1` if negative, or `1` if positive.
+- `absolute()`: Returns the absolute (positive) value of this decimal.
+- `negation()`: Returns the negation (positive if negative and vice versa).
 
 Also:
 - `toString()`: Default casting mechanism (this method is equivalent to a cast to string).
 - `toStringWithPrecision()`: Does not remove precision - keeps trailing zeroes.
 - `toFloat()`: Returns some approximation of this Decimal as a PHP native float.
+- `toInt()`: Returns integer value (this method is equivalent to a cast to integer).
 
 There is only one static method and acts as a convenience wrapper to create an object:
 - `create()`: Internally does `new Decimal($value)`, allows for easier chaining without need of `()` wrapping.

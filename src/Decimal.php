@@ -2,9 +2,10 @@
 namespace Spryker\Decimal;
 
 use InvalidArgumentException;
+use JsonSerializable;
 use LogicException;
 
-class Decimal
+class Decimal implements JsonSerializable
 {
     public const DEFAULT_PRECISION = 28;
     public const EXP_MARK = 'e';
@@ -271,7 +272,7 @@ class Decimal
      *
      * @return int 0 if zero, -1 if negative, or 1 if positive.
      */
-    public function signum(): int
+    public function sign(): int
     {
         if ($this->isZero()) {
             return 0;
@@ -285,7 +286,7 @@ class Decimal
      *
      * @return static
      */
-    public function abs()
+    public function absolute()
     {
         return $this->copy($this->integerPart, $this->decimalPart, false);
     }
@@ -379,6 +380,18 @@ class Decimal
     }
 
     /**
+     * Returns the decimal as int. Does not round.
+     *
+     * This method is equivalent to a cast to int.
+     *
+     * @return int
+     */
+    public function toInt(): int
+    {
+        return (int)$this->toString();
+    }
+
+    /**
      * String representation.
      *
      * This method is equivalent to a cast to string.
@@ -417,6 +430,14 @@ class Decimal
      * @return array
      */
     public function __debugInfo(): array
+    {
+        return $this->jsonSerialize();
+    }
+
+    /**
+     * @return array
+     */
+    public function jsonSerialize(): array
     {
         return [
             'value' => $this->toString(),
