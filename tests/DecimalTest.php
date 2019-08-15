@@ -38,23 +38,7 @@ class DecimalTest extends TestCase
     /**
      * @return void
      */
-    public function testNewObjectExponent(): void
-    {
-        $value = 0.000001;
-        $decimal = new Decimal($value);
-        $result = $decimal->toString();
-        $this->assertSame('0.000001', $result);
-
-        $value = -0.000001;
-        $decimal = new Decimal($value);
-        $result = $decimal->toString();
-        $this->assertSame('-0.000001', $result);
-    }
-
-    /**
-     * @return void
-     */
-    public function testNewObjectExponentScientific(): void
+    public function testNewObjectScientific(): void
     {
         $value = '2.2e-6';
         $decimal = new Decimal($value);
@@ -86,8 +70,8 @@ class DecimalTest extends TestCase
         return [
             [50, '50'],
             [-25000, '-25000'],
-            [0.00001, '0.00001'],
-            [-0.000003, '-0.000003'],
+            [0.00001, '0.000010'], // !
+            [-0.000003, '-0.0000030'], // !
             ['.0189', '0.0189'],
             ['-.3', '-0.3'],
             ['-5.000067', '-5.000067'],
@@ -97,7 +81,7 @@ class DecimalTest extends TestCase
             ['6.22e8', '622000000'],
             ['6.22e18', '6220000000000000000'],
             [PHP_INT_MAX, (string)PHP_INT_MAX],
-            [-PHP_INT_MAX, '-' . (string)PHP_INT_MAX],
+            [-PHP_INT_MAX, '-' . PHP_INT_MAX],
             [new Decimal('-12.375'), '-12.375'],
             ['0000', '0'],
             ['-0', '0'],
@@ -220,10 +204,41 @@ class DecimalTest extends TestCase
     /**
      * @return void
      */
+    public function testToScientific(): void
+    {
+        $decimal = Decimal::create(-23);
+        $this->assertSame('-2.3e1', $decimal->toScientific());
+        $revertedDecimal = Decimal::create($decimal->toScientific());
+        $this->assertSame('-23', (string)$revertedDecimal);
+
+        $decimal = Decimal::create('1.000');
+        $this->assertSame('1.000e0', $decimal->toScientific());
+        $revertedDecimal = Decimal::create($decimal->toScientific());
+        $this->assertSame('1.000', (string)$revertedDecimal);
+
+        $decimal = Decimal::create('-22.345');
+        $this->assertSame('-2.2345e1', $decimal->toScientific());
+        $revertedDecimal = Decimal::create($decimal->toScientific());
+        $this->assertSame('-22.345', (string)$revertedDecimal);
+
+        $decimal = Decimal::create('30022.0345');
+        $this->assertSame('3.00220345e4', $decimal->toScientific());
+        $revertedDecimal = Decimal::create($decimal->toScientific());
+        $this->assertSame('30022.0345', (string)$revertedDecimal);
+
+        $decimal = Decimal::create('-0.00230');
+        $this->assertSame('-2.30e-3', $decimal->toScientific());
+        $revertedDecimal = Decimal::create($decimal->toScientific());
+        $this->assertSame('-0.00230', (string)$revertedDecimal);
+    }
+
+    /**
+     * @return void
+     */
     public function testToString(): void
     {
         $value = -23;
-        $decimal = new Decimal($value);
+        $decimal = Decimal::create($value);
 
         $result = (string)$decimal;
         $this->assertSame('-23', $result);

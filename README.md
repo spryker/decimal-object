@@ -44,19 +44,20 @@ The following libraries are using the `Decimal` value object:
 
 
 ## TODO
-- Precision vs Scale: How not to lose precision/scale.
+- Discuss: Precision vs Scale: How not to lose precision/scale.
 - Trimming: auto trim?
+- Internal state: normalized form as digits + exponent?
 - Rounding + ceil()/floor()
 - Assert/check edge case values (very small values)
 - sum(), average(), max(), min() as static methods ?
-- modulo()/power() ?
-- shift() ?
-- API naming `add() => plus()`, `subtract() => minus()`, `multiply() => multipliedBy()`, `divide() => devidedBy()` ?
+- modulo()/power()?
+- shift()/toMagnitude($exponent) ?
+- API naming `add() => plus()`, `subtract() => minus()`, `multiply() => multipliedBy/times()`, `divide() => devidedBy()` ?
 
 
 Rounding Example:
 ```php
-$decimal = Decimal::create('123.4560');
+$decimal = Decimal::create('123.4560', Decimal::ROUND_);
 (string)$decimal->round(1); // '123.4'
 (string)$decimal->round(2); // '123.45'
 (string)$decimal->round(3); // '123.456'

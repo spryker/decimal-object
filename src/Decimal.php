@@ -13,10 +13,14 @@ class Decimal implements JsonSerializable
     public const RADIX_MARK = '.';
 
     public const ROUND_TRUNCATE = 0;
-    public const ROUND_UP = PHP_ROUND_HALF_UP;
-    public const ROUND_DOWN = PHP_ROUND_HALF_DOWN;
-    public const ROUND_CEILING = 3;
-    public const ROUND_FLOOR = 4;
+    public const ROUND_HALF_UP = PHP_ROUND_HALF_UP;
+    public const ROUND_HALF_DOWN = PHP_ROUND_HALF_DOWN;
+    public const ROUND_HALF_EVEN = PHP_ROUND_HALF_EVEN; // [Default] Towards the nearest odd value.
+    public const ROUND_HALF_ODD = PHP_ROUND_HALF_ODD; //  Towards the nearest even value.
+    public const ROUND_UP = 5;
+    public const ROUND_DOWN = 6;
+    public const ROUND_CEILING = 7;
+    public const ROUND_FLOOR = 8;
 
     /**
      * Integral part of this decimal number.
@@ -386,6 +390,29 @@ class Decimal implements JsonSerializable
     }
 
     /**
+     * @param int $scale
+     * @param int $roundMode
+     *
+     * @return static
+     */
+    public function round(int $scale = 0, int $roundMode = self::ROUND_HALF_EVEN)
+    {
+        //TODO
+        return $this->copy();
+    }
+
+    /**
+     * @param int $scale
+     *
+     * @return static
+     */
+    public function truncate(int $scale = 0)
+    {
+        //TODO
+        return $this->copy();
+    }
+
+    /**
      * Return some approximation of this Decimal as a PHP native float.
      *
      * Due to the nature of binary floating-point, some valid values of Decimal
@@ -409,6 +436,55 @@ class Decimal implements JsonSerializable
     public function toInt(): int
     {
         return (int)$this->toString();
+    }
+
+    /**
+     * Returns scientific notation.
+     *
+     * {x.y}e{z} with 0 < x < 10
+     *
+     * This does not lose precision/scale info.
+     * If you want the output without the significant digits added,
+     * use trim() beforehand.
+     *
+     * @return string
+     */
+    public function toScientific(): string
+    {
+        if ($this->integralPart) {
+            $exponent = 0;
+            $integralPart = $this->integralPart;
+            while ($integralPart >= 10) {
+                $integralPart /= 10;
+                $exponent++;
+            }
+
+            $value = (string)$integralPart;
+            if (strpos($value, '.') === false) {
+                $value .= '.';
+            }
+            $value .= $this->fractionalPart;
+        } else {
+            $exponent = -1;
+            // 00002
+            // 20000
+            $fractionalPart = $this->fractionalPart;
+            while (substr($fractionalPart, 0, 1) === '0') {
+                $fractionalPart = substr($fractionalPart, 1);
+                $exponent--;
+            }
+
+            $pos = abs($exponent) - 1;
+            $value = substr($this->fractionalPart, $pos, 1) . '.' . substr($this->fractionalPart, $pos + 1);
+        }
+
+        //$value = str_pad($value, $this->precision, '0');
+
+        if ($this->negative) {
+            $value = '-' . $value;
+        }
+
+        return $value . 'e' . $exponent;
     }
 
     /**
@@ -506,19 +582,27 @@ class Decimal implements JsonSerializable
         }
 
         $negativeChar = $matches[1];
-        $value = (float)$matches[2];
+        $value = $matches[2];
+        $floatValue = (float)$value;
         $exp = (int)$matches[3];
 
         if ($exp < 0) {
             $this->integralPart = 0;
-            $this->fractionalPart = str_repeat('0', -$exp - 1) . str_replace('.', '', (string)$value);
+            $this->fractionalPart = str_repeat('0', -$exp - 1) . str_replace('.', '', $value);
 
             if ($scale !== null) {
                 $this->fractionalPart = str_pad($this->fractionalPart, $scale, '0');
             }
         } else {
-            $this->integralPart = abs((int)($value * pow(10, $exp)));
-            $this->fractionalPart = '';
+            $integralPart = abs($floatValue) * pow(10, $exp);
+
+            $this->integralPart = (int)$integralPart;
+
+            $pos = strlen((string)$this->integralPart);
+            if (strpos($value, '.') !== false) {
+                $pos++;
+            }
+            $this->fractionalPart = rtrim(substr($value, $pos), '.');
 
             if ($scale !== null) {
                 $this->fractionalPart = str_pad($this->fractionalPart, $scale - strlen((string)$this->integralPart), '0');
