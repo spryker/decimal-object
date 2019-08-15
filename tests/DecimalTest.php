@@ -2,6 +2,7 @@
 
 namespace Spryker\Decimal\Test;
 
+use InvalidArgumentException;
 use LogicException;
 use PHPUnit\Framework\TestCase;
 use Spryker\Decimal\Decimal;
@@ -51,6 +52,19 @@ class DecimalTest extends TestCase
     }
 
     /**
+     * @return void
+     */
+    public function testNewObjectExponentScientific(): void
+    {
+        $value = '2.2e-6';
+        $decimal = new Decimal($value);
+        $result = $decimal->toString();
+        $this->assertSame('0.0000022', $result);
+
+        $this->assertSame(7, $decimal->scale());
+    }
+
+    /**
      * @dataProvider baseProvider
      *
      * @param mixed $value
@@ -79,7 +93,7 @@ class DecimalTest extends TestCase
             ['-5.000067', '-5.000067'],
             ['+5.000067', '5.000067'],
             ['0000005', '5'],
-            ['  0.0   ', '0'],
+            ['  0.0   ', '0.0'],
             ['6.22e8', '622000000'],
             ['6.22e18', '6220000000000000000'],
             [PHP_INT_MAX, (string)PHP_INT_MAX],
@@ -182,10 +196,8 @@ class DecimalTest extends TestCase
      */
     public function testPrecision($input, int $expected): void
     {
-        $this->markTestSkipped('TBD');
-
         $decimal = Decimal::create($input);
-        $this->assertSame($expected, $decimal->precision());
+        $this->assertSame($expected, $decimal->scale());
     }
 
     /**
@@ -201,6 +213,7 @@ class DecimalTest extends TestCase
             ['-0.7', 1],
             ['6.22e23', 0],
             ['1e-10', 10],
+            ['-2.3e-10', 11], // 0.00000000023
         ];
     }
 
@@ -219,13 +232,15 @@ class DecimalTest extends TestCase
     /**
      * @return void
      */
-    public function testToStringWithPrecision(): void
+    public function testTrim(): void
     {
         $value = '-2.0300000000000000000000000000';
         $decimal = new Decimal($value);
+        $this->assertSame('-2.03', (string)$decimal->trim());
 
-        $result = $decimal->toStringWithPrecision();
-        $this->assertSame($value, $result);
+        $value = '2000';
+        $decimal = new Decimal($value);
+        $this->assertSame('2000', (string)$decimal->trim());
     }
 
     /**
@@ -419,7 +434,9 @@ class DecimalTest extends TestCase
         $decimalTwo = new Decimal($value);
 
         $result = $decimalOne->add($decimalTwo);
+
         $this->assertSame('2.3', (string)$result);
+        $this->assertSame(1, $result->scale());
     }
 
     /**
@@ -468,13 +485,13 @@ class DecimalTest extends TestCase
             ['0.1', '1', null, '0.1'],
             ['0.1', '0.01', null, '0.001'],
             ['-0.001', '0.01', null, '-0.00001'],
-            ['0', '0', 3, '0'],
+            ['0', '0', 3, '0.000'],
             ['9', '0.001', 3, '0.009'],
             ['9', '0.001', 0, '0'],
             ['1e-10', '28', null, '0.0000000028'],
             ['1e-10', '-1e-10', null, '-0.00000000000000000001'],
             ['1e-10', '-1e-10', 20, '-0.00000000000000000001'],
-            ['1e-10', '-1e-10', 19, '0'],
+            ['1e-10', '-1e-10', 19, '0.0000000000000000000'],
         ];
     }
 
@@ -521,7 +538,7 @@ class DecimalTest extends TestCase
             ['10', '-10', null, '-1'],
             ['10', '10', null, '1'],
             ['0.1', '1', null, '0.1'],
-            ['0.1', '0.01', null, '10'],
+            ['0.1', '0.01', null, '10.00'],
             ['-0.001', '0.01', 1, '-0.1'],
             ['1', '3', 3, '0.333'],
             ['1', '3', 0, '0'],
@@ -544,8 +561,38 @@ class DecimalTest extends TestCase
         $result = $decimal->__debugInfo();
         $expected = [
             'value' => $value,
-            'precision' => Decimal::DEFAULT_PRECISION,
+            //'precision' => 2,
+            'scale' => 1,
         ];
         $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * @return void
+     */
+    public function testPrecisionLossProtection(): void
+    {
+        $a = Decimal::create('0.1', 50);
+        $this->assertSame(50, $a->scale());
+
+        $b = Decimal::create($a);
+        $this->assertSame(50, $b->scale());
+
+        $c = Decimal::create($b, 6); // Not 50 if manually overwritten
+        $this->assertSame(6, $c->scale());
+
+        $d = Decimal::create($c, 64);
+        $this->assertSame(64, $d->scale());
+    }
+
+    /**
+     * @return void
+     */
+    public function testPrecisionLossFail(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Loss of precision detected');
+
+        new Decimal('0.123', 2);
     }
 }

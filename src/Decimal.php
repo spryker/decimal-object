@@ -7,9 +7,16 @@ use LogicException;
 
 class Decimal implements JsonSerializable
 {
-    public const DEFAULT_PRECISION = 28;
+    public const MAX_SCALE = 2147483647; // 2^32-1
+
     public const EXP_MARK = 'e';
     public const RADIX_MARK = '.';
+
+    public const ROUND_TRUNCATE = 0;
+    public const ROUND_UP = PHP_ROUND_HALF_UP;
+    public const ROUND_DOWN = PHP_ROUND_HALF_DOWN;
+    public const ROUND_CEILING = 3;
+    public const ROUND_FLOOR = 4;
 
     /**
      * Integral part of this decimal number.
@@ -35,15 +42,24 @@ class Decimal implements JsonSerializable
     protected $negative;
 
     /**
+     * decimal(10,6) => 10
+     *
+     * @var int
+     */
+    protected $scale;
+
+    /**
+     * decimal(10,6) => 6
+     *
      * @var int
      */
     protected $precision;
 
     /**
      * @param string|int|float|static $value
-     * @param int|null $precision
+     * @param int|null $scale
      */
-    public function __construct($value, ?int $precision = null)
+    public function __construct($value, ?int $scale = null)
     {
         if (!is_string($value)) {
             $value = (string)$value;
@@ -51,16 +67,17 @@ class Decimal implements JsonSerializable
 
         $value = $this->normalizeValue($value);
 
-        $this->setValue($value);
-        $this->precision = $precision ?? static::DEFAULT_PRECISION;
+        $this->setValue($value, $scale);
+        $this->setScale($scale);
+        //$this->setPrecision() // not needed?
     }
 
     /**
      * @return int
      */
-    public function precision(): int
+    public function scale(): int
     {
-        return $this->precision;
+        return $this->scale;
     }
 
     /**
@@ -86,7 +103,7 @@ class Decimal implements JsonSerializable
      */
     protected function copy(?int $integerPart = null, ?string $decimalPart = null, ?bool $negative = null)
     {
-        $clone = clone($this);
+        $clone = clone $this;
         if ($integerPart !== null) {
             $clone->integralPart = $integerPart;
         }
@@ -103,21 +120,22 @@ class Decimal implements JsonSerializable
     /**
      * Returns a Decimal instance from the given value.
      *
-     * If the value is already a Decimal instance, then return it unmodified.
+     * If the value is already a Decimal instance, then (since immutable) return it unmodified.
      * Otherwise, create a new Decimal instance from the given value and return
      * it.
      *
      * @param string|int|float|static $value
+     * @param int|null $scale
      *
      * @return static
      */
-    public static function create($value)
+    public static function create($value, ?int $scale = null)
     {
-        if ($value instanceof static) {
-            return $value;
+        if ($scale === null && $value instanceof static) {
+            return clone $value;
         }
 
-        return new static($value);
+        return new static($value, $scale);
     }
 
     /**
@@ -190,7 +208,7 @@ class Decimal implements JsonSerializable
     public function compareTo($value): int
     {
         $decimal = static::create($value);
-        $scale = max($this->precision(), $decimal->precision());
+        $scale = max($this->scale(), $decimal->scale());
 
         return bccomp($this, $decimal, $scale);
     }
@@ -206,7 +224,7 @@ class Decimal implements JsonSerializable
     public function add($value, ?int $scale = null)
     {
         $decimal = static::create($value);
-        $scale = static::resultPrecision($this, $decimal, $scale);
+        $scale = static::resultScale($this, $decimal, $scale);
 
         return new static(bcadd($this, $decimal, $scale));
     }
@@ -223,10 +241,10 @@ class Decimal implements JsonSerializable
      *
      * @return int
      */
-    protected static function resultPrecision($a, $b, ?int $scale = null): int
+    protected static function resultScale($a, $b, ?int $scale = null): int
     {
         if ($scale === null) {
-            $scale = max($a->precision(), $b->precision());
+            $scale = max($a->scale(), $b->scale());
         }
 
         return $scale;
@@ -244,21 +262,19 @@ class Decimal implements JsonSerializable
     public function subtract($value, ?int $scale = null)
     {
         $decimal = static::create($value);
-        $scale = static::resultPrecision($this, $decimal, $scale);
+        $scale = static::resultScale($this, $decimal, $scale);
 
         return new static(bcsub($this, $decimal, $scale));
     }
 
     /**
-     * Does not remove precision - keeps trailing zeroes.
+     * Trims trailing zeroes.
      *
-     * @return string
+     * @return static
      */
-    public function toStringWithPrecision(): string
+    public function trim()
     {
-        $decimalPart = $this->fractionalPart !== '' ? '.' . str_pad($this->fractionalPart, $this->precision, '0') : '';
-
-        return ($this->negative ? '-' : '') . $this->integralPart . $decimalPart;
+        return $this->copy($this->integralPart, $this->trimDecimals($this->fractionalPart));
     }
 
     /**
@@ -310,7 +326,7 @@ class Decimal implements JsonSerializable
      */
     public function isZero(): bool
     {
-        return $this->integralPart === 0 && $this->fractionalPart === '';
+        return $this->integralPart === 0 && trim($this->fractionalPart, '0') === '';
     }
 
     /**
@@ -333,40 +349,40 @@ class Decimal implements JsonSerializable
      * Multiply this Decimal by $value and return the product as a new Decimal.
      *
      * @param string|int|float|static $value
-     * @param int|null $precision
+     * @param int|null $scale
      *
      * @return static
      */
-    public function multiply($value, ?int $precision = null)
+    public function multiply($value, ?int $scale = null)
     {
         $decimal = static::create($value);
-        if ($precision === null) {
-            $precision = $this->precision() + $decimal->precision();
+        if ($scale === null) {
+            $scale = $this->scale() + $decimal->scale();
         }
 
-        return new static(bcmul($this, $decimal, $precision));
+        return new static(bcmul($this, $decimal, $scale));
     }
 
     /**
      * Divide this Decimal by $value and return the quotient as a new Decimal.
      *
      * @param string|int|float|static $value
-     * @param int|null $precision
+     * @param int|null $scale
      *
      * @throws \LogicException if $value is zero.
      *
      * @return static
      */
-    public function divide($value, ?int $precision = null)
+    public function divide($value, ?int $scale = null)
     {
         $decimal = static::create($value);
         if ($decimal->isZero()) {
             throw new LogicException('Cannot divide by zero. Only Chuck Norris can!');
         }
 
-        $precision = static::resultPrecision($this, $decimal, $precision);
+        $scale = static::resultScale($this, $decimal, $scale);
 
-        return new static(bcdiv($this, $decimal, $precision));
+        return new static(bcdiv($this, $decimal, $scale));
     }
 
     /**
@@ -445,7 +461,7 @@ class Decimal implements JsonSerializable
     {
         return [
             'value' => $this->toString(),
-            'precision' => $this->precision,
+            'scale' => $this->scale,
         ];
     }
 
@@ -456,14 +472,16 @@ class Decimal implements JsonSerializable
      * - '0.00001' can also come in as '1.0E-5'
      *
      * @param string $value
+     * @param int|null $scale
      *
      * @throws \InvalidArgumentException
      *
      * @return void
      */
-    protected function setValue(string $value): void
+    protected function setValue(string $value, ?int $scale): void
     {
-        if (!preg_match('#e#i', $value)) {
+        preg_match('#(.+)e(.+)#i', $value, $matches);
+        if (!$matches) {
             $separatorPos = strpos($value, '.');
             if ($separatorPos !== false) {
                 $before = (int)substr($value, 0, $separatorPos);
@@ -475,7 +493,7 @@ class Decimal implements JsonSerializable
 
             $this->negative = $before < 0 || $before === 0 && $after !== '' && strpos($value, '-') === 0;
             $this->integralPart = abs($before);
-            $this->fractionalPart = $this->trimDecimals($after);
+            $this->fractionalPart = $after;
 
             return;
         }
@@ -493,12 +511,60 @@ class Decimal implements JsonSerializable
 
         if ($exp < 0) {
             $this->integralPart = 0;
-            $this->fractionalPart = str_repeat('0', -$exp - 1) . $value;
+            $this->fractionalPart = str_repeat('0', -$exp - 1) . str_replace('.', '', (string)$value);
+
+            if ($scale !== null) {
+                $this->fractionalPart = str_pad($this->fractionalPart, $scale, '0');
+            }
         } else {
-            $this->integralPart = (int)($value * pow(10, $exp));
+            $this->integralPart = abs((int)($value * pow(10, $exp)));
             $this->fractionalPart = '';
+
+            if ($scale !== null) {
+                $this->fractionalPart = str_pad($this->fractionalPart, $scale - strlen((string)$this->integralPart), '0');
+            }
         }
 
         $this->negative = $negativeChar === '-';
+    }
+
+    /**
+     * @param int|null $scale
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return void
+     */
+    protected function setScale(?int $scale): void
+    {
+        $calculatedScale = strlen($this->fractionalPart);
+        if ($scale && $calculatedScale > $scale) {
+            throw new InvalidArgumentException('Loss of precision detected. Detected scale `' . $calculatedScale . '` > `' . $scale . '` as defined.');
+        }
+
+        $this->scale = $scale ?? $calculatedScale;
+    }
+
+    /**
+     * @param int|null $scale
+     *
+     * @return void
+     */
+    protected function _setPrecision(?int $scale): void
+    {
+        if ($scale) {
+            $this->precision = $scale;
+
+            return;
+        }
+
+        if ($this->integralPart) {
+            $scale = strlen((string)$this->integralPart) + strlen($this->fractionalPart);
+        } else {
+            $fractionalPart = ltrim($this->fractionalPart, '0');
+            $scale = strlen($fractionalPart);
+        }
+
+        $this->precision = $scale;
     }
 }

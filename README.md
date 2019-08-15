@@ -44,10 +44,27 @@ The following libraries are using the `Decimal` value object:
 
 
 ## TODO
-- Rounding
-- ceil()/floor() ?
+- Precision vs Scale: How not to lose precision/scale.
+- Trimming: auto trim?
+- Rounding + ceil()/floor()
 - Assert/check edge case values (very small values)
 - sum(), average(), max(), min() as static methods ?
 - modulo()/power() ?
 - shift() ?
 - API naming `add() => plus()`, `subtract() => minus()`, `multiply() => multipliedBy()`, `divide() => devidedBy()` ?
+
+
+Rounding Example:
+```php
+$decimal = Decimal::create('123.4560');
+(string)$decimal->round(1); // '123.4'
+(string)$decimal->round(2); // '123.45'
+(string)$decimal->round(3); // '123.456'
+(string)$decimal->round(4); // '123.4560' (trailing zeroes are added)
+(string)$decimal->round(5); // '123.45600' (trailing zeroes are added)
+```
+
+```php
+$decimal = Decimal::create('123.4560')->trim();
+(string)$decimal // '123.456'
+
