@@ -82,7 +82,7 @@ class DecimalTest extends TestCase
             ['6.22e18', '6220000000000000000'],
             [PHP_INT_MAX, (string)PHP_INT_MAX],
             [-PHP_INT_MAX, '-' . PHP_INT_MAX],
-            [new Decimal('-12.375'), '-12.375'],
+            [Decimal::create('-12.375'), '-12.375'],
             ['0000', '0'],
             ['-0', '0'],
             ['+0', '0'],
@@ -112,7 +112,7 @@ class DecimalTest extends TestCase
             [5, false],
             [0.00001, false],
             [-0.000003, false],
-            [new Decimal('0'), true],
+            [Decimal::create('0'), true],
             [0, true],
             [0.0, true],
             ['0000', true],
@@ -131,7 +131,7 @@ class DecimalTest extends TestCase
      */
     public function testIsPositive($input, int $expected): void
     {
-        $dec = new Decimal($input);
+        $dec = Decimal::create($input);
         $this->assertSame($expected > 0, $dec->isPositive());
     }
 
@@ -145,7 +145,7 @@ class DecimalTest extends TestCase
      */
     public function testIsNegative($input, int $expected): void
     {
-        $dec = new Decimal($input);
+        $dec = Decimal::create($input);
         $this->assertSame($expected < 0, $dec->isNegative());
     }
 
@@ -250,11 +250,11 @@ class DecimalTest extends TestCase
     public function testTrim(): void
     {
         $value = '-2.0300000000000000000000000000';
-        $decimal = new Decimal($value);
+        $decimal = Decimal::create($value);
         $this->assertSame('-2.03', (string)$decimal->trim());
 
         $value = '2000';
-        $decimal = new Decimal($value);
+        $decimal = Decimal::create($value);
         $this->assertSame('2000', (string)$decimal->trim());
     }
 
@@ -264,7 +264,7 @@ class DecimalTest extends TestCase
     public function testToFloat(): void
     {
         $value = '-23.44';
-        $decimal = new Decimal($value);
+        $decimal = Decimal::create($value);
 
         $result = $decimal->toFloat();
         $this->assertSame(-23.44, $result);
@@ -276,7 +276,7 @@ class DecimalTest extends TestCase
     public function testToInt(): void
     {
         $value = '-23.74';
-        $decimal = new Decimal($value);
+        $decimal = Decimal::create($value);
 
         $result = $decimal->toInt();
         $this->assertSame(-23, $result);
@@ -288,7 +288,7 @@ class DecimalTest extends TestCase
     public function testAbsolute(): void
     {
         $value = '-23.44';
-        $decimal = new Decimal($value);
+        $decimal = Decimal::create($value);
 
         $result = $decimal->absolute();
         $this->assertSame('23.44', (string)$result);
@@ -300,7 +300,7 @@ class DecimalTest extends TestCase
     public function testNegation(): void
     {
         $value = '-23.44';
-        $decimal = new Decimal($value);
+        $decimal = Decimal::create($value);
 
         $result = $decimal->negation();
         $this->assertSame('23.44', (string)$result);
@@ -315,15 +315,15 @@ class DecimalTest extends TestCase
     public function testIsNegativeBasic(): void
     {
         $value = '-23.44';
-        $decimal = new Decimal($value);
+        $decimal = Decimal::create($value);
         $this->assertTrue($decimal->isNegative());
 
         $value = '23.44';
-        $decimal = new Decimal($value);
+        $decimal = Decimal::create($value);
         $this->assertFalse($decimal->isNegative());
 
         $value = '0';
-        $decimal = new Decimal($value);
+        $decimal = Decimal::create($value);
         $this->assertFalse($decimal->isNegative());
     }
 
@@ -333,15 +333,15 @@ class DecimalTest extends TestCase
     public function testIsPositiveBasic(): void
     {
         $value = '-23.44';
-        $decimal = new Decimal($value);
+        $decimal = Decimal::create($value);
         $this->assertFalse($decimal->isPositive());
 
         $value = '23.44';
-        $decimal = new Decimal($value);
+        $decimal = Decimal::create($value);
         $this->assertTrue($decimal->isPositive());
 
         $value = '0';
-        $decimal = new Decimal($value);
+        $decimal = Decimal::create($value);
         $this->assertFalse($decimal->isPositive());
     }
 
@@ -351,10 +351,10 @@ class DecimalTest extends TestCase
     public function testEquals(): void
     {
         $value = '1.1';
-        $decimalOne = new Decimal($value);
+        $decimalOne = Decimal::create($value);
 
         $value = '1.10';
-        $decimalTwo = new Decimal($value);
+        $decimalTwo = Decimal::create($value);
 
         $result = $decimalOne->equals($decimalTwo);
         $this->assertTrue($result);
@@ -371,7 +371,7 @@ class DecimalTest extends TestCase
      */
     public function testGreaterThan($a, $b, int $expected): void
     {
-        $dec = new Decimal($a);
+        $dec = Decimal::create($a);
         $this->assertSame($expected > 0, $dec->greaterThan($b));
     }
 
@@ -386,7 +386,7 @@ class DecimalTest extends TestCase
      */
     public function testLessThan($a, $b, int $expected): void
     {
-        $dec = new Decimal($a);
+        $dec = Decimal::create($a);
         $this->assertSame($expected < 0, $dec->lessThan($b));
     }
 
@@ -401,7 +401,7 @@ class DecimalTest extends TestCase
      */
     public function testGreaterEquals($a, $b, int $expected): void
     {
-        $dec = new Decimal($a);
+        $dec = Decimal::create($a);
         $this->assertSame($expected >= 0, $dec->greatherThanOrEquals($b));
     }
 
@@ -416,7 +416,7 @@ class DecimalTest extends TestCase
      */
     public function testLessEquals($a, $b, int $expected): void
     {
-        $dec = new Decimal($a);
+        $dec = Decimal::create($a);
         $this->assertSame($expected <= 0, $dec->lessThanOrEquals($b));
     }
 
@@ -443,10 +443,10 @@ class DecimalTest extends TestCase
     public function testAdd(): void
     {
         $value = '1.1';
-        $decimalOne = new Decimal($value);
+        $decimalOne = Decimal::create($value);
 
         $value = '1.2';
-        $decimalTwo = new Decimal($value);
+        $decimalTwo = Decimal::create($value);
 
         $result = $decimalOne->add($decimalTwo);
 
@@ -460,10 +460,10 @@ class DecimalTest extends TestCase
     public function testSubtract(): void
     {
         $value = '0.1';
-        $decimalOne = new Decimal($value);
+        $decimalOne = Decimal::create($value);
 
         $value = '0.01';
-        $decimalTwo = new Decimal($value);
+        $decimalTwo = Decimal::create($value);
 
         $result = $decimalOne->subtract($decimalTwo);
         $this->assertSame('0.09', (string)$result);
@@ -481,7 +481,7 @@ class DecimalTest extends TestCase
      */
     public function testMultiply($a, $b, ?int $precision, string $expected): void
     {
-        $dec = new Decimal($a);
+        $dec = Decimal::create($a);
         $this->assertSame($expected, (string)$dec->multiply($b, $precision));
     }
 
@@ -522,7 +522,7 @@ class DecimalTest extends TestCase
      */
     public function testDivide($a, $b, ?int $precision, string $expected): void
     {
-        $dec = new Decimal($a);
+        $dec = Decimal::create($a);
         $this->assertSame($expected, (string)$dec->divide($b, $precision));
     }
 
@@ -531,7 +531,7 @@ class DecimalTest extends TestCase
      */
     public function testDivideByZero(): void
     {
-        $dec = new Decimal(1);
+        $dec = Decimal::create(1);
 
         $this->expectException(LogicException::class);
 
@@ -571,7 +571,7 @@ class DecimalTest extends TestCase
     public function testDebugInfo(): void
     {
         $value = '1.1';
-        $decimal = new Decimal($value);
+        $decimal = Decimal::create($value);
 
         $result = $decimal->__debugInfo();
         $expected = [
@@ -608,6 +608,6 @@ class DecimalTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Loss of precision detected');
 
-        new Decimal('0.123', 2);
+        Decimal::create('0.123', 2);
     }
 }

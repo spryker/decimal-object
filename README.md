@@ -15,9 +15,11 @@ servers to be available). For details see [wiki](https://github.com/spryker/deci
 
 ## Features
 
-- Basic math operations and checks supported
-- Immutability
-- Handle very large and very small numbers
+- Super strict on precision/scale. Does not lose significant digits on its own. You need to `trim()` for this manually.
+- Speaking API (no le, gt methods).
+- Basic math operations and checks supported.
+- Immutability.
+- Handle very large and very small numbers.
 
 Note: This library is a sandbox/showcase and for testing right now only.
 Alpha-version. Use with Caution.
@@ -57,15 +59,10 @@ The following libraries are using the `Decimal` value object:
 
 Rounding Example:
 ```php
-$decimal = Decimal::create('123.4560', Decimal::ROUND_);
+$decimal = Decimal::create('123.4560', Decimal::ROUND_TRUNCATE);
 (string)$decimal->round(1); // '123.4'
 (string)$decimal->round(2); // '123.45'
 (string)$decimal->round(3); // '123.456'
 (string)$decimal->round(4); // '123.4560' (trailing zeroes are added)
 (string)$decimal->round(5); // '123.45600' (trailing zeroes are added)
 ```
-
-```php
-$decimal = Decimal::create('123.4560')->trim();
-(string)$decimal // '123.456'
-

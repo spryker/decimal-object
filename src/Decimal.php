@@ -228,7 +228,7 @@ class Decimal implements JsonSerializable
     public function add($value, ?int $scale = null)
     {
         $decimal = static::create($value);
-        $scale = static::resultScale($this, $decimal, $scale);
+        $scale = $this->resultScale($this, $decimal, $scale);
 
         return new static(bcadd($this, $decimal, $scale));
     }
@@ -245,7 +245,7 @@ class Decimal implements JsonSerializable
      *
      * @return int
      */
-    protected static function resultScale($a, $b, ?int $scale = null): int
+    protected function resultScale($a, $b, ?int $scale = null): int
     {
         if ($scale === null) {
             $scale = max($a->scale(), $b->scale());
@@ -266,7 +266,7 @@ class Decimal implements JsonSerializable
     public function subtract($value, ?int $scale = null)
     {
         $decimal = static::create($value);
-        $scale = static::resultScale($this, $decimal, $scale);
+        $scale = $this->resultScale($this, $decimal, $scale);
 
         return new static(bcsub($this, $decimal, $scale));
     }
@@ -384,7 +384,7 @@ class Decimal implements JsonSerializable
             throw new LogicException('Cannot divide by zero. Only Chuck Norris can!');
         }
 
-        $scale = static::resultScale($this, $decimal, $scale);
+        $scale = $this->resultScale($this, $decimal, $scale);
 
         return new static(bcdiv($this, $decimal, $scale));
     }
