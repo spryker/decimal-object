@@ -46,8 +46,6 @@ The following libraries are using the `Decimal` value object:
 
 
 ## TODO
-- Discuss: Precision vs Scale: How not to lose precision/scale.
-- Trimming: auto trim?
 - Internal state: normalized form as digits + exponent?
 - Rounding + ceil()/floor()
 - Assert/check edge case values (very small values)

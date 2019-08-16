@@ -252,11 +252,18 @@ class DecimalTest extends TestCase
     {
         $value = '-2.0300000000000000000000000000';
         $decimal = Decimal::create($value);
-        $this->assertSame('-2.03', (string)$decimal->trim());
+        $this->assertSame(28, $decimal->scale());
+
+        $trimmed = $decimal->trim();
+        $this->assertSame('-2.03', (string)$trimmed);
+        $this->assertSame(2, $trimmed->scale());
 
         $value = '2000';
         $decimal = Decimal::create($value);
-        $this->assertSame('2000', (string)$decimal->trim());
+
+        $trimmed = $decimal->trim();
+        $this->assertSame('2000', (string)$trimmed);
+        $this->assertSame(0, $trimmed->scale());
     }
 
     /**

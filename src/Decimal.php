@@ -105,6 +105,7 @@ class Decimal implements JsonSerializable
         }
         if ($decimalPart !== null) {
             $clone->fractionalPart = $decimalPart;
+            $clone->setScale(null);
         }
         if ($negative !== null) {
             $clone->negative = $negative;
@@ -470,8 +471,6 @@ class Decimal implements JsonSerializable
             $value = substr($this->fractionalPart, $pos, 1) . '.' . substr($this->fractionalPart, $pos + 1);
         }
 
-        //$value = str_pad($value, $this->precision, '0');
-
         if ($this->negative) {
             $value = '-' . $value;
         }
@@ -487,7 +486,7 @@ class Decimal implements JsonSerializable
      * This method should not be used as a canonical representation of this
      * decimal, because values can be represented in more than one way. However,
      * this method does guarantee that a decimal instantiated by its output with
-     * the same precision will be exactly equal to this decimal.
+     * the same scale will be exactly equal to this decimal.
      *
      * @return string the value of this decimal represented exactly, in either
      *                fixed or scientific form, depending on the value.
