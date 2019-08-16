@@ -46,18 +46,11 @@ class Decimal implements JsonSerializable
     protected $negative;
 
     /**
-     * decimal(10,6) => 10
-     *
-     * @var int
-     */
-    protected $scale;
-
-    /**
      * decimal(10,6) => 6
      *
      * @var int
      */
-    protected $precision;
+    protected $scale;
 
     /**
      * @param string|int|float|static $value
@@ -73,7 +66,6 @@ class Decimal implements JsonSerializable
 
         $this->setValue($value, $scale);
         $this->setScale($scale);
-        //$this->setPrecision() // not needed?
     }
 
     /**
@@ -627,28 +619,5 @@ class Decimal implements JsonSerializable
         }
 
         $this->scale = $scale ?? $calculatedScale;
-    }
-
-    /**
-     * @param int|null $scale
-     *
-     * @return void
-     */
-    protected function _setPrecision(?int $scale): void
-    {
-        if ($scale) {
-            $this->precision = $scale;
-
-            return;
-        }
-
-        if ($this->integralPart) {
-            $scale = strlen((string)$this->integralPart) + strlen($this->fractionalPart);
-        } else {
-            $fractionalPart = ltrim($this->fractionalPart, '0');
-            $scale = strlen($fractionalPart);
-        }
-
-        $this->precision = $scale;
     }
 }
