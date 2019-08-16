@@ -171,14 +171,14 @@ class DecimalTest extends TestCase
     }
 
     /**
-     * @dataProvider precisionProvider
+     * @dataProvider scaleProvider
      *
      * @param mixed $input
      * @param int $expected
      *
      * @return void
      */
-    public function testPrecision($input, int $expected): void
+    public function testScale($input, int $expected): void
     {
         $decimal = Decimal::create($input);
         $this->assertSame($expected, $decimal->scale());
@@ -187,12 +187,13 @@ class DecimalTest extends TestCase
     /**
      * @return array
      */
-    public function precisionProvider(): array
+    public function scaleProvider(): array
     {
         return [
             [0, 0],
             [1, 0],
             [-1, 0],
+            ['120', 0],
             ['12.375', 3],
             ['-0.7', 1],
             ['6.22e23', 0],
