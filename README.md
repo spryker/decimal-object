@@ -1,6 +1,6 @@
 #  Decimal Object
 
-[![License](https://poser.pugx.org/spryker/decimal/license)](https://packagist.org/packages/spryker/decimal)
+[![License](https://poser.pugx.org/spryker/decimal-object/license)](https://packagist.org/packages/spryker/decimal-object)
 [![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%207.1-8892BF.svg)](https://php.net/)
 
 Decimal value object for PHP.
@@ -11,7 +11,7 @@ Handling them as string is a workaround, but as value object you can more easily
 
 ### Alternatives
 Solutions like https://php-decimal.io require a PHP extension (would make it faster, but also more difficult for some
-servers to be available). For details see [wiki](https://github.com/spryker/decimal/wiki).
+servers to be available). For details see [wiki](https://github.com/spryker/decimal-object/wiki).
 
 ## Features
 
