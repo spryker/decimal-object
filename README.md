@@ -1,4 +1,4 @@
-#  Decimal Value Object
+#  Decimal Object
 
 [![License](https://poser.pugx.org/spryker/decimal/license)](https://packagist.org/packages/spryker/decimal)
 [![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%207.1-8892BF.svg)](https://php.net/)
@@ -32,7 +32,7 @@ Alpha-version. Use with Caution.
 
 ### Composer (preferred)
 ```
-composer require spryker/decimal:dev-master
+composer require spryker/decimal-object:dev-master
 ```
 
 ## Usage
@@ -57,7 +57,6 @@ The following libraries are using the `Decimal` value object:
 
 Rounding Example:
 ```php
-$decimal = Decimal::create('123.4560', Decimal::ROUND_TRUNCATE);
 (string)$decimal->round(1); // '123.4'
 (string)$decimal->round(2); // '123.45'
 (string)$decimal->round(3); // '123.456'

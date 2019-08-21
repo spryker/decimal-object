@@ -1,5 +1,5 @@
 {
-    "name": "spryker/decimal",
+    "name": "spryker/decimal-object",
     "description": "PHP decimal handling as value object",
     "type": "library",
     "license": "MIT",
@@ -21,12 +21,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Spryker\\Decimal\\": "src/"
+            "Spryker\\DecimalObject\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Spryker\\Decimal\\Test\\": "tests/"
+            "Spryker\\DecimalObject\\Test\\": "tests/"
         }
     },
     "minimum-stability": "dev",

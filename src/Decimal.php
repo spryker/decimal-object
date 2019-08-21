@@ -1,5 +1,5 @@
 <?php
-namespace Spryker\Decimal;
+namespace Spryker\DecimalObject;
 
 use InvalidArgumentException;
 use JsonSerializable;

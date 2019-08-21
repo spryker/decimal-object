@@ -1,11 +1,11 @@
 <?php
 
-namespace Spryker\Decimal\Test;
+namespace Spryker\DecimalObject\Test;
 
 use InvalidArgumentException;
 use LogicException;
 use PHPUnit\Framework\TestCase;
-use Spryker\Decimal\Decimal;
+use Spryker\DecimalObject\Decimal;
 
 class DecimalTest extends TestCase
 {

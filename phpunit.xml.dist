@@ -11,7 +11,7 @@
 
     <!-- Add any additional test suites you want to run here -->
     <testsuites>
-        <testsuite name="decimal">
+        <testsuite name="decimal-object">
             <directory>tests/</directory>
         </testsuite>
     </testsuites>
