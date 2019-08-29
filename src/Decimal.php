@@ -518,18 +518,18 @@ class Decimal implements JsonSerializable
      */
     public function __debugInfo(): array
     {
-        return $this->jsonSerialize();
-    }
-
-    /**
-     * @return array
-     */
-    public function jsonSerialize(): array
-    {
         return [
             'value' => $this->toString(),
             'scale' => $this->scale,
         ];
+    }
+
+    /**
+     * @return string
+     */
+    public function jsonSerialize(): string
+    {
+        return $this->toString();
     }
 
     /**
