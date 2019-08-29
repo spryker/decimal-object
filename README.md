@@ -11,7 +11,7 @@ Handling them as string is a workaround, but as value object you can more easily
 
 ### Alternatives
 Solutions like https://php-decimal.io require a PHP extension (would make it faster, but also more difficult for some
-servers to be available). For details see [wiki](https://github.com/spryker/decimal-object/wiki).
+servers to be available). For details see the [wiki](https://github.com/spryker/decimal-object/wiki).
 
 ## Features
 
