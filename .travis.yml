@@ -1,0 +1,32 @@
+language: php
+
+php:
+  - 7.1
+  - 7.3
+
+env:
+  global:
+    - DEFAULT=1
+
+matrix:
+  include:
+    - php: 7.3
+      env: CHECKS=1 DEFAULT=0
+
+  fast_finish: true
+
+before_script:
+  - composer install --prefer-source --no-interaction
+
+script:
+  - if [[ $DEFAULT == 1 ]]; then composer test; fi
+
+  - if [[ $CHECKS == 1 ]]; then composer cs-check; fi
+  - if [[ $CHECKS == 1 ]]; then composer phpstan; fi
+
+cache:
+    directories:
+        - $HOME/.composer/cache
+
+notifications:
+  email: false
