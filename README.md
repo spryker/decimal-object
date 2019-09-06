@@ -8,6 +8,12 @@ Decimal value object for PHP.
 
 ## Background
 When working with monetary values, normal data types like int or float are not suitable for exact arithmetic.
+Try out the following in PHP:
+```php
+var_dump(0.1 + 0.2);        // float(0.3)
+var_dump(0.1 + 0.2 - 0.3);  // float(5.5511151231258E-17)
+```
+
 Handling them as string is a workaround, but as value object you can more easily encapsulate some of the logic. 
 
 ### Alternatives

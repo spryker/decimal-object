@@ -64,6 +64,11 @@ You can use
 - `subtract()`
 - `multiply()`
 - `divide()`
+- `round()`: Round using different modes.
+- `truncate()`: Truncate after places of decimal.
+- `mod()`
+- `pow()`
+- `sqrt()`
 
 ```php
 $decimalOne = Decimal::create('1.1');

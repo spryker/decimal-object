@@ -12,14 +12,14 @@ class Decimal implements JsonSerializable
     public const EXP_MARK = 'e';
     public const RADIX_MARK = '.';
 
-    public const ROUND_TRUNCATE = 0;
+    //public const ROUND_TRUNCATE = 0;
     public const ROUND_HALF_UP = PHP_ROUND_HALF_UP;
     public const ROUND_HALF_DOWN = PHP_ROUND_HALF_DOWN;
     public const ROUND_HALF_EVEN = PHP_ROUND_HALF_EVEN; // [Default] Towards the nearest odd value.
     public const ROUND_HALF_ODD = PHP_ROUND_HALF_ODD; //  Towards the nearest even value.
     public const ROUND_UP = 5;
     public const ROUND_DOWN = 6;
-    public const ROUND_CEILING = 7;
+    public const ROUND_CEIL = 7;
     public const ROUND_FLOOR = 8;
 
     /**
@@ -88,30 +88,6 @@ class Decimal implements JsonSerializable
         }
 
         return trim($value);
-    }
-
-    /**
-     * @param int|null $integerPart
-     * @param string|null $decimalPart
-     * @param bool|null $negative
-     *
-     * @return static
-     */
-    protected function copy(?int $integerPart = null, ?string $decimalPart = null, ?bool $negative = null)
-    {
-        $clone = clone $this;
-        if ($integerPart !== null) {
-            $clone->integralPart = $integerPart;
-        }
-        if ($decimalPart !== null) {
-            $clone->fractionalPart = $decimalPart;
-            $clone->setScale(null);
-        }
-        if ($negative !== null) {
-            $clone->negative = $negative;
-        }
-
-        return $clone;
     }
 
     /**
@@ -309,11 +285,11 @@ class Decimal implements JsonSerializable
     }
 
     /**
-     * Returns the negation.
+     * Returns the negation (negative to positive and vice versa).
      *
      * @return static
      */
-    public function negation()
+    public function negate()
     {
         return $this->copy(null, null, !$this->isNegative());
     }
@@ -321,12 +297,24 @@ class Decimal implements JsonSerializable
     /**
      * @return bool
      */
-    public function isZero(): bool
+    public function isInteger(): bool
     {
-        return $this->integralPart === 0 && trim($this->fractionalPart, '0') === '';
+        return trim($this->fractionalPart, '0') === '';
     }
 
     /**
+     * Returns if truly zero.
+     *
+     * @return bool
+     */
+    public function isZero(): bool
+    {
+        return $this->integralPart === 0 && $this->isInteger();
+    }
+
+    /**
+     * Returns if truly negative (not zero).
+     *
      * @return bool
      */
     public function isNegative(): bool
@@ -335,6 +323,8 @@ class Decimal implements JsonSerializable
     }
 
     /**
+     * Returns if truly positive (not zero).
+     *
      * @return bool
      */
     public function isPositive(): bool
@@ -383,6 +373,56 @@ class Decimal implements JsonSerializable
     }
 
     /**
+     * This method is equivalent to the ** operator.
+     *
+     * @param static|string|int $exponent
+     * @param int|null $scale
+     *
+     * @return static
+     */
+    public function pow($exponent, ?int $scale = null)
+    {
+        if ($scale === null) {
+            $scale = $this->scale();
+        }
+
+        return new static(bcpow($this, (string)$exponent, $scale));
+    }
+
+    /**
+     * Returns the square root of this decimal, with the same precision as this decimal.
+     *
+     * @param int|null $scale
+     *
+     * @return static
+     */
+    public function sqrt(?int $scale = null)
+    {
+        if ($scale === null) {
+            $scale = $this->scale();
+        }
+
+        return new static(bcsqrt($this, $scale));
+    }
+
+    /**
+     * This method is equivalent to the % operator.
+     *
+     * @param static|string|int $value
+     * @param int|null $scale
+     *
+     * @return static
+     */
+    public function mod($value, ?int $scale = null)
+    {
+        if ($scale === null) {
+            $scale = $this->scale();
+        }
+
+        return new static(bcmod($this, (string)$value, $scale));
+    }
+
+    /**
      * @param int $scale
      * @param int $roundMode
      *
@@ -390,19 +430,52 @@ class Decimal implements JsonSerializable
      */
     public function round(int $scale = 0, int $roundMode = self::ROUND_HALF_EVEN)
     {
-        //TODO
-        return $this->copy();
+        $exponent = $scale + 1;
+
+        $e = bcpow('10', (string)$exponent);
+        $v = bcdiv(bcadd(bcmul($this, $e, 0), $this->isNegative() ? '-5' : '5'), $e, $scale);
+
+        return new static($v);
     }
 
     /**
+     * The closest integer towards negative infinity.
+     *
+     * @return static
+     */
+    public function floor()
+    {
+        return $this->round(0, static::ROUND_FLOOR);
+    }
+
+    /**
+     * The closest integer towards positive infinity.
+     *
+     * @return static
+     */
+    public function ceil()
+    {
+        return $this->round(0, static::ROUND_CEIL);
+    }
+
+    /**
+     * The result of discarding all digits behind the defined scale.
+     *
      * @param int $scale
+     *
+     * @throws \InvalidArgumentException
      *
      * @return static
      */
     public function truncate(int $scale = 0)
     {
-        //TODO
-        return $this->copy();
+        if ($scale < 0) {
+            throw new InvalidArgumentException('Scale must be >= 0.');
+        }
+
+        $decimalPart = substr($this->fractionalPart, 0, $scale);
+
+        return $this->copy($this->integralPart, $decimalPart);
     }
 
     /**
@@ -533,6 +606,30 @@ class Decimal implements JsonSerializable
     }
 
     /**
+     * @param int|null $integerPart
+     * @param string|null $decimalPart
+     * @param bool|null $negative
+     *
+     * @return static
+     */
+    protected function copy(?int $integerPart = null, ?string $decimalPart = null, ?bool $negative = null)
+    {
+        $clone = clone $this;
+        if ($integerPart !== null) {
+            $clone->integralPart = $integerPart;
+        }
+        if ($decimalPart !== null) {
+            $clone->fractionalPart = $decimalPart;
+            $clone->setScale(null);
+        }
+        if ($negative !== null) {
+            $clone->negative = $negative;
+        }
+
+        return $clone;
+    }
+
+    /**
      * Separates int and decimal parts and adds them to the state.
      *
      * - Removes leading 0 on int part
@@ -558,7 +655,7 @@ class Decimal implements JsonSerializable
                 $after = '';
             }
 
-            $this->negative = $before < 0 || $before === 0 && $after !== '' && strpos($value, '-') === 0;
+            $this->negative = $before < 0 || ($before === 0 && $after !== '' && strpos($value, '-') === 0);
             $this->integralPart = abs($before);
             $this->fractionalPart = $after;
 

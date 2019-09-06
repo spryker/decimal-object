@@ -90,6 +90,69 @@ class DecimalTest extends TestCase
     }
 
     /**
+     * @dataProvider truncateProvider
+     *
+     * @param mixed $input
+     * @param int $scale
+     * @param string $expected
+     *
+     * @return void
+     */
+    public function testTruncate($input, int $scale, string $expected): void
+    {
+        $decimal = Decimal::create($input);
+        $this->assertSame($expected, (string)$decimal->truncate($scale));
+    }
+
+    /**
+     * @return array
+     */
+    public function truncateProvider(): array
+    {
+        return [
+            [0, 0, '0'],
+            [1, 0, '1'],
+            [-1, 0, '-1'],
+            ['12.375', 2, '12.37'],
+            ['12.374', 0, '12'],
+            ['-12.376', 1, '-12.3'],
+        ];
+    }
+
+    /**
+     * @dataProvider integerProvider
+     *
+     * @param mixed $value
+     * @param bool $expected
+     *
+     * @return void
+     */
+    public function testIsInteger($value, bool $expected): void
+    {
+        $decimal = Decimal::create($value);
+        $this->assertSame($expected, $decimal->isInteger());
+    }
+
+    /**
+     * @return array
+     */
+    public function integerProvider(): array
+    {
+        return [
+            [5, true],
+            [0.00001, false],
+            [-0.000003, false],
+            [Decimal::create('0'), true],
+            [0, true],
+            [0.0, true],
+            ['0000', true],
+            ['-0', true],
+            ['+0', true],
+            [-121211, true],
+        ];
+    }
+
+    /**
      * @dataProvider zeroProvider
      *
      * @param mixed $value
@@ -131,8 +194,8 @@ class DecimalTest extends TestCase
      */
     public function testIsPositive($input, int $expected): void
     {
-        $dec = Decimal::create($input);
-        $this->assertSame($expected > 0, $dec->isPositive());
+        $decimal = Decimal::create($input);
+        $this->assertSame($expected > 0, $decimal->isPositive());
     }
 
     /**
@@ -145,8 +208,8 @@ class DecimalTest extends TestCase
      */
     public function testIsNegative($input, int $expected): void
     {
-        $dec = Decimal::create($input);
-        $this->assertSame($expected < 0, $dec->isNegative());
+        $decimal = Decimal::create($input);
+        $this->assertSame($expected < 0, $decimal->isNegative());
     }
 
     /**
@@ -293,6 +356,54 @@ class DecimalTest extends TestCase
     /**
      * @return void
      */
+    public function testMod(): void
+    {
+        $value = '7';
+        $decimal = Decimal::create($value);
+
+        $result = $decimal->mod(2);
+        $this->assertSame('1', (string)$result);
+    }
+
+    /**
+     * @return void
+     */
+    public function testPow(): void
+    {
+        $value = '8';
+        $decimal = Decimal::create($value);
+
+        $result = $decimal->pow(2);
+        $this->assertSame('64', (string)$result);
+    }
+
+    /**
+     * @return void
+     */
+    public function testSqrt(): void
+    {
+        $value = '64';
+        $decimal = Decimal::create($value);
+
+        $result = $decimal->sqrt();
+        $this->assertSame('8', (string)$result);
+
+        $value = '18';
+        $decimal = Decimal::create($value);
+
+        $result = $decimal->sqrt(5);
+        $this->assertSame('4.24264', (string)$result);
+
+        $value = '18.000000';
+        $decimal = Decimal::create($value);
+
+        $result = $decimal->sqrt();
+        $this->assertSame('4.242640', (string)$result);
+    }
+
+    /**
+     * @return void
+     */
     public function testAbsolute(): void
     {
         $value = '-23.44';
@@ -305,15 +416,15 @@ class DecimalTest extends TestCase
     /**
      * @return void
      */
-    public function testNegation(): void
+    public function testNegate(): void
     {
         $value = '-23.44';
         $decimal = Decimal::create($value);
 
-        $result = $decimal->negation();
+        $result = $decimal->negate();
         $this->assertSame('23.44', (string)$result);
 
-        $again = $result->negation();
+        $again = $result->negate();
         $this->assertSame($value, (string)$again);
     }
 
@@ -369,6 +480,37 @@ class DecimalTest extends TestCase
     }
 
     /**
+     * @dataProvider roundProvider
+     *
+     * @param mixed $value
+     * @param int $scale
+     * @param string $expected
+     *
+     * @return void
+     */
+    public function testRound($value, int $scale, string $expected): void
+    {
+        $decimal = Decimal::create($value);
+        $this->assertSame($expected, (string)$decimal->round($scale));
+    }
+
+    /**
+     * @return array
+     */
+    public function roundProvider(): array
+    {
+        return [
+            [0, 0, '0'],
+            [1, 0, '1'],
+            [-1, 0, '-1'],
+            ['12.375', 1, '12.4'],
+            ['12.374', 2, '12.37'],
+            ['-13.574', 0, '-14'],
+            [13.4999, 0, '13'],
+        ];
+    }
+
+    /**
      * @dataProvider compareProvider
      *
      * @param mixed $a
@@ -379,8 +521,8 @@ class DecimalTest extends TestCase
      */
     public function testGreaterThan($a, $b, int $expected): void
     {
-        $dec = Decimal::create($a);
-        $this->assertSame($expected > 0, $dec->greaterThan($b));
+        $decimal = Decimal::create($a);
+        $this->assertSame($expected > 0, $decimal->greaterThan($b));
     }
 
     /**
@@ -394,8 +536,8 @@ class DecimalTest extends TestCase
      */
     public function testLessThan($a, $b, int $expected): void
     {
-        $dec = Decimal::create($a);
-        $this->assertSame($expected < 0, $dec->lessThan($b));
+        $decimal = Decimal::create($a);
+        $this->assertSame($expected < 0, $decimal->lessThan($b));
     }
 
     /**
@@ -409,8 +551,8 @@ class DecimalTest extends TestCase
      */
     public function testGreaterEquals($a, $b, int $expected): void
     {
-        $dec = Decimal::create($a);
-        $this->assertSame($expected >= 0, $dec->greatherThanOrEquals($b));
+        $decimal = Decimal::create($a);
+        $this->assertSame($expected >= 0, $decimal->greatherThanOrEquals($b));
     }
 
     /**
@@ -424,8 +566,8 @@ class DecimalTest extends TestCase
      */
     public function testLessEquals($a, $b, int $expected): void
     {
-        $dec = Decimal::create($a);
-        $this->assertSame($expected <= 0, $dec->lessThanOrEquals($b));
+        $decimal = Decimal::create($a);
+        $this->assertSame($expected <= 0, $decimal->lessThanOrEquals($b));
     }
 
     /**
@@ -489,8 +631,8 @@ class DecimalTest extends TestCase
      */
     public function testMultiply($a, $b, ?int $precision, string $expected): void
     {
-        $dec = Decimal::create($a);
-        $this->assertSame($expected, (string)$dec->multiply($b, $precision));
+        $decimal = Decimal::create($a);
+        $this->assertSame($expected, (string)$decimal->multiply($b, $precision));
     }
 
     /**
@@ -530,8 +672,8 @@ class DecimalTest extends TestCase
      */
     public function testDivide($a, $b, ?int $precision, string $expected): void
     {
-        $dec = Decimal::create($a);
-        $this->assertSame($expected, (string)$dec->divide($b, $precision));
+        $decimal = Decimal::create($a);
+        $this->assertSame($expected, (string)$decimal->divide($b, $precision));
     }
 
     /**
@@ -539,11 +681,11 @@ class DecimalTest extends TestCase
      */
     public function testDivideByZero(): void
     {
-        $dec = Decimal::create(1);
+        $decimal = Decimal::create(1);
 
         $this->expectException(LogicException::class);
 
-        $dec->divide(0);
+        $decimal->divide(0);
     }
 
     /**
