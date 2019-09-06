@@ -650,13 +650,38 @@ class DecimalTest extends TestCase
             ['0.1', '1', null, '0.1'],
             ['0.1', '0.01', null, '0.001'],
             ['-0.001', '0.01', null, '-0.00001'],
-            ['0', '0', 3, '0.000'],
             ['9', '0.001', 3, '0.009'],
             ['9', '0.001', 0, '0'],
             ['1e-10', '28', null, '0.0000000028'],
             ['1e-10', '-1e-10', null, '-0.00000000000000000001'],
             ['1e-10', '-1e-10', 20, '-0.00000000000000000001'],
             ['1e-10', '-1e-10', 19, '0.0000000000000000000'],
+        ];
+    }
+
+    /**
+     * @dataProvider multiplicationLegacyProvider
+     *
+     * @param mixed $a
+     * @param mixed $b
+     * @param int|null $precision
+     * @param string $expected
+     *
+     * @return void
+     */
+    public function testMultiplyLegacy($a, $b, ?int $precision, string $expected): void
+    {
+        $decimal = Decimal::create($a);
+        $this->assertSame($expected, (string)$decimal->multiply($b, $precision));
+    }
+
+    /**
+     * @return array
+     */
+    public function multiplicationLegacyProvider(): array
+    {
+        return [
+            ['0', '0', 3, version_compare(PHP_VERSION, '7.3') < 0 ? '0' : '0.000'],
         ];
     }
 
