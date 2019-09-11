@@ -7,7 +7,12 @@ use LogicException;
 
 class Decimal implements JsonSerializable
 {
-    public const MAX_SCALE = 2147483647; // 2^32-1
+    /**
+     * @var int
+     */
+    protected static $default_scale;
+
+    public const MAX_SCALE = PHP_INT_MAX;
 
     public const EXP_MARK = 'e';
     public const RADIX_MARK = '.';
@@ -109,6 +114,17 @@ class Decimal implements JsonSerializable
         }
 
         return new static($value, $scale);
+    }
+
+    /**
+     * @param int $scale
+     *
+     * @return void
+     */
+    public static function setDefaultScale(int $scale): void
+    {
+        bcscale($scale);
+        static::$default_scale = $scale;
     }
 
     /**
@@ -353,23 +369,32 @@ class Decimal implements JsonSerializable
     /**
      * Divide this Decimal by $value and return the quotient as a new Decimal.
      *
+     * If $scale is not specified, default scale will be used.
+     * Rounds the quotient if needed to the scale.
+     *
      * @param string|int|float|static $value
      * @param int|null $scale
+     * @param int $roundMode
      *
      * @throws \LogicException if $value is zero.
+     * @throws \InvalidArgumentException if $scale is null and default scale is not defined.
      *
      * @return static
      */
-    public function divide($value, ?int $scale = null)
+    public function divide($value, ?int $scale = null, int $roundMode = self::ROUND_HALF_EVEN)
     {
         $decimal = static::create($value);
         if ($decimal->isZero()) {
             throw new LogicException('Cannot divide by zero. Only Chuck Norris can!');
         }
 
-        $scale = $this->resultScale($this, $decimal, $scale);
+        if ($scale === null && static::$default_scale === null) {
+            throw new InvalidArgumentException('Missing scale. Pass a scale to the method, or use `setDefaultScale`');
+        }
 
-        return new static(bcdiv($this, $decimal, $scale));
+        $scale = $scale ?? static::$default_scale;
+
+        return (new static(bcdiv($this, $decimal, $scale + 1)))->round($scale, $roundMode);
     }
 
     /**

@@ -5,6 +5,7 @@ namespace Spryker\DecimalObject\Test;
 use InvalidArgumentException;
 use LogicException;
 use PHPUnit\Framework\TestCase;
+use ReflectionObject;
 use Spryker\DecimalObject\Decimal;
 
 class DecimalTest extends TestCase
@@ -714,29 +715,64 @@ class DecimalTest extends TestCase
     }
 
     /**
+     * @return void
+     */
+    public function testDivideWithNoScale(): void
+    {
+        $decimal = Decimal::create(7);
+        $this->unsetDefaultScale($decimal);
+
+        $this->expectException(InvalidArgumentException::class);
+
+        $decimal->divide(2);
+    }
+
+    /**
+     * @param \Spryker\DecimalObject\Decimal $decimal
+     *
+     * @return void
+     */
+    protected function unsetDefaultScale(Decimal $decimal): void
+    {
+        $refObject = new ReflectionObject($decimal);
+        $refProperty = $refObject->getProperty('default_scale');
+        $refProperty->setAccessible(true);
+        $refProperty->setValue(null, null);
+    }
+
+    /**
      * @return array
      */
     public function divisionProvider(): array
     {
+        Decimal::setDefaultScale(3);
+
         return [
-            ['0', '1', null, '0'],
-            ['1', '1', null, '1'],
-            ['0', '1e6', null, '0'],
+            ['0', '1', null, '0.000'],
+            ['1', '1', null, '1.000'],
+            ['0', '1e6', null, '0.000'],
             [1, 10, 1, '0.1'],
-            ['1000', '10', null, '100'],
-            ['-10', '10', null, '-1'],
-            ['10', '-10', null, '-1'],
-            ['10', '10', null, '1'],
-            ['0.1', '1', null, '0.1'],
-            ['0.1', '0.01', null, '10.00'],
+            ['1000', '10', null, '100.000'],
+            ['-10', '10', null, '-1.000'],
+            ['10', '-10', null, '-1.000'],
+            ['10', '10', null, '1.000'],
+            ['0.1', '1', null, '0.100'],
+            ['0.1', '0.01', null, '10.000'],
             ['-0.001', '0.01', 1, '-0.1'],
             ['1', '3', 3, '0.333'],
             ['1', '3', 0, '0'],
-            //['6.22e23', '2', null, '311000000000000000000000'],
-            //['6.22e23', '-1', null, '-622000000000000000000000'],
-            //['1e-10', 3, null, '0'],
-            //['1e-10', 3, 11, '0.00000000003'],
-            //['1e-10', 3, 12, '0.000000000033'],
+            ['15', '2', 1, '7.5'],
+            ['15', '2', null, '7.500'],
+            ['101', '11', null, '9.182'], // with rounding
+            ['10', '3', null, '3.333'],
+            ['1.1', '.2', null, '5.500'],
+            ['1.23', '.2', null, '6.150'],
+            ['0.2', '.11111', 20, '1.80001800018000180002'], // with rounding
+//            ['6.22e23', '2', null, '311000000000000000000000'],
+//            ['6.22e23', '-1', null, '-622000000000000000000000'],
+            ['1e-10', 3, null, '0.000'],
+            ['1e-10', 3, 11, '0.00000000003'],
+            ['1e-10', 3, 12, '0.000000000033'],
         ];
     }
 
