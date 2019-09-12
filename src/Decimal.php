@@ -7,7 +7,7 @@ use LogicException;
 
 class Decimal implements JsonSerializable
 {
-    public const MAX_SCALE = 2147483647; // 2^32-1
+    public const MAX_SCALE = PHP_INT_MAX;
 
     public const EXP_MARK = 'e';
     public const RADIX_MARK = '.';
@@ -354,20 +354,18 @@ class Decimal implements JsonSerializable
      * Divide this Decimal by $value and return the quotient as a new Decimal.
      *
      * @param string|int|float|static $value
-     * @param int|null $scale
+     * @param int $scale
      *
      * @throws \LogicException if $value is zero.
      *
      * @return static
      */
-    public function divide($value, ?int $scale = null)
+    public function divide($value, int $scale)
     {
         $decimal = static::create($value);
         if ($decimal->isZero()) {
             throw new LogicException('Cannot divide by zero. Only Chuck Norris can!');
         }
-
-        $scale = $this->resultScale($this, $decimal, $scale);
 
         return new static(bcdiv($this, $decimal, $scale));
     }
@@ -390,7 +388,7 @@ class Decimal implements JsonSerializable
     }
 
     /**
-     * Returns the square root of this decimal, with the same precision as this decimal.
+     * Returns the square root of this decimal, with the same scale as this decimal.
      *
      * @param int|null $scale
      *

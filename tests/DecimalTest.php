@@ -624,15 +624,15 @@ class DecimalTest extends TestCase
      *
      * @param mixed $a
      * @param mixed $b
-     * @param int|null $precision
+     * @param int|null $scale
      * @param string $expected
      *
      * @return void
      */
-    public function testMultiply($a, $b, ?int $precision, string $expected): void
+    public function testMultiply($a, $b, ?int $scale, string $expected): void
     {
         $decimal = Decimal::create($a);
-        $this->assertSame($expected, (string)$decimal->multiply($b, $precision));
+        $this->assertSame($expected, (string)$decimal->multiply($b, $scale));
     }
 
     /**
@@ -664,15 +664,15 @@ class DecimalTest extends TestCase
      *
      * @param mixed $a
      * @param mixed $b
-     * @param int|null $precision
+     * @param int|null $scale
      * @param string $expected
      *
      * @return void
      */
-    public function testMultiplyLegacy($a, $b, ?int $precision, string $expected): void
+    public function testMultiplyLegacy($a, $b, ?int $scale, string $expected): void
     {
         $decimal = Decimal::create($a);
-        $this->assertSame($expected, (string)$decimal->multiply($b, $precision));
+        $this->assertSame($expected, (string)$decimal->multiply($b, $scale));
     }
 
     /**
@@ -690,15 +690,15 @@ class DecimalTest extends TestCase
      *
      * @param mixed $a
      * @param mixed $b
-     * @param int|null $precision
+     * @param int $scale
      * @param string $expected
      *
      * @return void
      */
-    public function testDivide($a, $b, ?int $precision, string $expected): void
+    public function testDivide($a, $b, int $scale, string $expected): void
     {
         $decimal = Decimal::create($a);
-        $this->assertSame($expected, (string)$decimal->divide($b, $precision));
+        $this->assertSame($expected, (string)$decimal->divide($b, $scale));
     }
 
     /**
@@ -710,7 +710,7 @@ class DecimalTest extends TestCase
 
         $this->expectException(LogicException::class);
 
-        $decimal->divide(0);
+        $decimal->divide(0, 10);
     }
 
     /**
@@ -719,24 +719,31 @@ class DecimalTest extends TestCase
     public function divisionProvider(): array
     {
         return [
-            ['0', '1', null, '0'],
-            ['1', '1', null, '1'],
-            ['0', '1e6', null, '0'],
+            ['0', '1', 0, '0'],
+            ['1', '1', 0, '1'],
+            ['0', '1e6', 0, '0'],
             [1, 10, 1, '0.1'],
-            ['1000', '10', null, '100'],
-            ['-10', '10', null, '-1'],
-            ['10', '-10', null, '-1'],
-            ['10', '10', null, '1'],
-            ['0.1', '1', null, '0.1'],
-            ['0.1', '0.01', null, '10.00'],
+            ['1000', '10', 0, '100'],
+            ['-10', '10', 0, '-1'],
+            ['10', '-10', 0, '-1'],
+            ['10', '10', 0, '1'],
+            ['0.1', '1', 1, '0.1'],
+            ['0.1', '0.01', 0, '10'],
             ['-0.001', '0.01', 1, '-0.1'],
             ['1', '3', 3, '0.333'],
             ['1', '3', 0, '0'],
-            //['6.22e23', '2', null, '311000000000000000000000'],
-            //['6.22e23', '-1', null, '-622000000000000000000000'],
-            //['1e-10', 3, null, '0'],
-            //['1e-10', 3, 11, '0.00000000003'],
-            //['1e-10', 3, 12, '0.000000000033'],
+            ['15', '2', 1, '7.5'],
+            ['15', '2', 1, '7.5'],
+            ['101', '11', 3, '9.181'],
+            ['10', '3', 3, '3.333'],
+            ['1.1', '.2', 3, '5.500'],
+            ['1.23', '.2', 3, '6.150'],
+            ['0.2', '.11111', 20, '1.80001800018000180001'],
+//            ['6.22e23', '2', null, '311000000000000000000000'],
+//            ['6.22e23', '-1', null, '-622000000000000000000000'],
+            ['1e-10', 3, 0, '0'],
+            ['1e-10', 3, 11, '0.00000000003'],
+            ['1e-10', 3, 12, '0.000000000033'],
         ];
     }
 
