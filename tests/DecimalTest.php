@@ -1,6 +1,6 @@
 <?php
 
-namespace Spryker\DecimalObject\Test;
+namespace SprykerTest\DecimalObject;
 
 use InvalidArgumentException;
 use LogicException;
@@ -492,6 +492,20 @@ class DecimalTest extends TestCase
     {
         $decimal = Decimal::create($value);
         $this->assertSame($expected, (string)$decimal->round($scale));
+        $this->assertNativeRound($expected, $value, $scale, PHP_ROUND_HALF_UP);
+    }
+
+    /**
+     * @param string $expected
+     * @param mixed $value
+     * @param int $scale
+     * @param int $roundMode
+     *
+     * @return void
+     */
+    protected function assertNativeRound(string $expected, $value, int $scale, int $roundMode): void
+    {
+        $this->assertSame((new Decimal($expected))->trim()->toString(), (string)round($value, $scale, $roundMode));
     }
 
     /**
@@ -502,11 +516,112 @@ class DecimalTest extends TestCase
         return [
             [0, 0, '0'],
             [1, 0, '1'],
+            [11, 2, '11.00'],
             [-1, 0, '-1'],
+            [-5, 1, '-5.0'],
             ['12.375', 1, '12.4'],
             ['12.374', 2, '12.37'],
+            ['12.375', 2, '12.38'],
+            ['12.364', 2, '12.36'],
+            ['12.365', 2, '12.37'],
             ['-13.574', 0, '-14'],
             [13.4999, 0, '13'],
+            [13.4999, 10, '13.4999000000'],
+            [13.4999, 2, '13.50'],
+        ];
+    }
+
+    /**
+     * @dataProvider floorProvider
+     *
+     * @param mixed $value
+     * @param string $expected
+     *
+     * @return void
+     */
+    public function testFloor($value, string $expected): void
+    {
+        $decimal = Decimal::create($value);
+        $this->assertSame($expected, (string)$decimal->floor());
+        $this->assertNativeFloor($expected, $value);
+    }
+
+    /**
+     * @param string $expected
+     * @param mixed $value
+     *
+     * @return void
+     */
+    protected function assertNativeFloor(string $expected, $value): void
+    {
+        $this->assertSame($expected, (string)floor($value));
+    }
+
+    /**
+     * @return array
+     */
+    public function floorProvider(): array
+    {
+        return [
+            [0, '0'],
+            [1, '1'],
+            [100, '100'],
+            [-1, '-1'],
+            [-7, '-7'],
+            ['12.375', '12'],
+            ['-13.574', '-14'],
+            ['-13.8', '-14'],
+            ['-13.1', '-14'],
+            ['13.6999', '13'],
+            ['13.1', '13'],
+            ['13.9', '13'],
+        ];
+    }
+
+    /**
+     * @dataProvider ceilProvider
+     *
+     * @param mixed $value
+     * @param string $expected
+     *
+     * @return void
+     */
+    public function testCeil($value, string $expected): void
+    {
+        $decimal = Decimal::create($value);
+        $this->assertSame($expected, (string)$decimal->ceil());
+        $this->assertNativeCeil($expected, $value);
+    }
+
+    /**
+     * @param string $expected
+     * @param mixed $value
+     *
+     * @return void
+     */
+    protected function assertNativeCeil(string $expected, $value): void
+    {
+        $this->assertSame($expected, (string)ceil($value));
+    }
+
+    /**
+     * @return array
+     */
+    public function ceilProvider(): array
+    {
+        return [
+            [0, '0'],
+            [1, '1'],
+            [100, '100'],
+            [-1, '-1'],
+            [-2, '-2'],
+            ['12.375', '13'],
+            ['-13.574', '-13'],
+            ['-13.8', '-13'],
+            ['-13.1', '-13'],
+            ['13.6999', '14'],
+            ['13.1', '14'],
+            ['13.9', '14'],
         ];
     }
 
