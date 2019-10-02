@@ -429,12 +429,22 @@ class Decimal implements JsonSerializable
      *
      * @return static
      */
-    public function round(int $scale = 0, int $roundMode = self::ROUND_HALF_EVEN)
+    public function round(int $scale = 0, int $roundMode = self::ROUND_HALF_UP)
     {
         $exponent = $scale + 1;
 
         $e = bcpow('10', (string)$exponent);
-        $v = bcdiv(bcadd(bcmul($this, $e, 0), $this->isNegative() ? '-5' : '5'), $e, $scale);
+        switch ($roundMode) {
+            case static::ROUND_FLOOR:
+                $v = bcdiv(bcadd(bcmul($this, $e, 0), $this->isNegative() ? '-9' : '0'), $e, 0);
+                break;
+            case static::ROUND_CEIL:
+                $v = bcdiv(bcadd(bcmul($this, $e, 0), $this->isNegative() ? '0' : '9'), $e, 0);
+                break;
+            case static::ROUND_HALF_UP:
+            default:
+                $v = bcdiv(bcadd(bcmul($this, $e, 0), $this->isNegative() ? '-5' : '5'), $e, $scale);
+        }
 
         return new static($v);
     }
