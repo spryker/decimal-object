@@ -3,36 +3,24 @@
 namespace SprykerTest\DecimalObject;
 
 use InvalidArgumentException;
-use LogicException;
 use PHPUnit\Framework\TestCase;
 use Spryker\DecimalObject\Decimal;
+use stdClass;
 
 class DecimalTest extends TestCase
 {
     /**
+     * @dataProvider baseProvider
+     *
+     * @param mixed $value
+     * @param string $expected
+     *
      * @return void
      */
-    public function testNewObject(): void
+    public function testNewObject($value, string $expected): void
     {
-        $value = '1.1';
         $decimal = new Decimal($value);
-        $result = $decimal->toString();
-        $this->assertSame($value, $result);
-
-        $value = 2;
-        $decimal = new Decimal($value);
-        $result = $decimal->toString();
-        $this->assertSame('2', $result);
-
-        $value = 2.2;
-        $decimal = new Decimal($value);
-        $result = $decimal->toString();
-        $this->assertSame('2.2', $result);
-
-        $value = -23;
-        $decimal = new Decimal($value);
-        $result = $decimal->toString();
-        $this->assertSame('-23', $result);
+        $this->assertSame($expected, (string)$decimal);
     }
 
     /**
@@ -67,25 +55,72 @@ class DecimalTest extends TestCase
      */
     public function baseProvider(): array
     {
+        $objectWithToStringMethod = new class
+        {
+            /**
+             * @return string
+             */
+            public function __toString(): string
+            {
+                return '12.12';
+            }
+        };
+
         return [
+            [1.1, '1.1'],
+            [-23, '-23'],
             [50, '50'],
             [-25000, '-25000'],
-            [0.00001, '0.000010'], // !
-            [-0.000003, '-0.0000030'], // !
+            [0.00001, '0.00001'],
+            [-0.000003, '-0.000003'],
             ['.0189', '0.0189'],
             ['-.3', '-0.3'],
             ['-5.000067', '-5.000067'],
             ['+5.000067', '5.000067'],
             ['0000005', '5'],
+            ['000000.5', '0.5'],
             ['  0.0   ', '0.0'],
             ['6.22e8', '622000000'],
             ['6.22e18', '6220000000000000000'],
             [PHP_INT_MAX, (string)PHP_INT_MAX],
+            [PHP_INT_MAX . '.' . PHP_INT_MAX, PHP_INT_MAX . '.' . PHP_INT_MAX],
             [-PHP_INT_MAX, '-' . PHP_INT_MAX],
             [Decimal::create('-12.375'), '-12.375'],
             ['0000', '0'],
             ['-0', '0'],
             ['+0', '0'],
+            ['311000000000000000000000', '311000000000000000000000'],
+            ['3.11e23', '311000000000000000000000'],
+            ['622000000000000000000000', '622000000000000000000000'],
+            ['3.11e2', '311'],
+            [$objectWithToStringMethod, '12.12'],
+        ];
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     *
+     * @dataProvider invalidValuesProvider
+     *
+     * @param mixed $value
+     *
+     * @return void
+     */
+    public function testNewObjectWithInvalidValueThrowsException($value): void
+    {
+        Decimal::create($value);
+    }
+
+    /**
+     * @return array
+     */
+    public function invalidValuesProvider(): array
+    {
+        return [
+            'invalid string' => ['xyz'],
+            'object' => [new stdClass()],
+            'non-english/localized case1' => ['1018,9'],
+            'non-english/localized case2' => ['1.018,9'],
         ];
     }
 
@@ -266,34 +301,33 @@ class DecimalTest extends TestCase
     }
 
     /**
+     * @dataProvider scientificProvider
+     *
+     * @param mixed $value
+     * @param string $expected
+     *
      * @return void
      */
-    public function testToScientific(): void
+    public function testToScientific($value, string $expected): void
     {
-        $decimal = Decimal::create(-23);
-        $this->assertSame('-2.3e1', $decimal->toScientific());
+        $decimal = Decimal::create($value);
+        $this->assertSame($expected, $decimal->toScientific());
         $revertedDecimal = Decimal::create($decimal->toScientific());
-        $this->assertSame('-23', (string)$revertedDecimal);
+        $this->assertSame($value, (string)$revertedDecimal);
+    }
 
-        $decimal = Decimal::create('1.000');
-        $this->assertSame('1.000e0', $decimal->toScientific());
-        $revertedDecimal = Decimal::create($decimal->toScientific());
-        $this->assertSame('1.000', (string)$revertedDecimal);
-
-        $decimal = Decimal::create('-22.345');
-        $this->assertSame('-2.2345e1', $decimal->toScientific());
-        $revertedDecimal = Decimal::create($decimal->toScientific());
-        $this->assertSame('-22.345', (string)$revertedDecimal);
-
-        $decimal = Decimal::create('30022.0345');
-        $this->assertSame('3.00220345e4', $decimal->toScientific());
-        $revertedDecimal = Decimal::create($decimal->toScientific());
-        $this->assertSame('30022.0345', (string)$revertedDecimal);
-
-        $decimal = Decimal::create('-0.00230');
-        $this->assertSame('-2.30e-3', $decimal->toScientific());
-        $revertedDecimal = Decimal::create($decimal->toScientific());
-        $this->assertSame('-0.00230', (string)$revertedDecimal);
+    /**
+     * @return array
+     */
+    public function scientificProvider(): array
+    {
+        return [
+            ['-23', '-2.3e1'],
+            ['1.000', '1.000e0'],
+            ['-22.345', '-2.2345e1'],
+            ['30022.0345', '3.00220345e4'],
+            ['-0.00230', '-2.30e-3'],
+        ];
     }
 
     /**
@@ -342,6 +376,34 @@ class DecimalTest extends TestCase
     }
 
     /**
+     * @expectedException \TypeError
+     * @expectedExceptionMessage Cannot cast Big Decimal to Float
+     *
+     * @dataProvider bigFloatDataProvider
+     *
+     * @param string $value
+     *
+     * @return void
+     */
+    public function testToFloatForBigDecimalThrowsAnException(string $value): void
+    {
+        $decimal = Decimal::create($value);
+
+        $result = $decimal->toFloat();
+    }
+
+    /**
+     * @return array
+     */
+    public function bigFloatDataProvider(): array
+    {
+        return [
+            'positive' => ['2.6' . PHP_INT_MAX],
+            'negative' => ['-2.6' . PHP_INT_MAX],
+        ];
+    }
+
+    /**
      * @return void
      */
     public function testToInt(): void
@@ -351,6 +413,34 @@ class DecimalTest extends TestCase
 
         $result = $decimal->toInt();
         $this->assertSame(-23, $result);
+    }
+
+    /**
+     * @expectedException \TypeError
+     * @expectedExceptionMessage Cannot cast Big Integer to Integer
+     *
+     * @dataProvider bigIntDataProvider
+     *
+     * @param string $value
+     *
+     * @return void
+     */
+    public function testToIntForBigIntThrowsAnException(string $value): void
+    {
+        $decimal = Decimal::create($value);
+
+        $result = $decimal->toInt();
+    }
+
+    /**
+     * @return array
+     */
+    public function bigIntDataProvider(): array
+    {
+        return [
+            'positive' => ['9' . PHP_INT_MAX],
+            'negative' => ['-9' . PHP_INT_MAX],
+        ];
     }
 
     /**
@@ -817,18 +907,6 @@ class DecimalTest extends TestCase
     }
 
     /**
-     * @return void
-     */
-    public function testDivideByZero(): void
-    {
-        $decimal = Decimal::create(1);
-
-        $this->expectException(LogicException::class);
-
-        $decimal->divide(0, 10);
-    }
-
-    /**
      * @return array
      */
     public function divisionProvider(): array
@@ -854,12 +932,24 @@ class DecimalTest extends TestCase
             ['1.1', '.2', 3, '5.500'],
             ['1.23', '.2', 3, '6.150'],
             ['0.2', '.11111', 20, '1.80001800018000180001'],
-//            ['6.22e23', '2', null, '311000000000000000000000'],
-//            ['6.22e23', '-1', null, '-622000000000000000000000'],
+            ['6.22e23', '2', 0, '311000000000000000000000'],
+            ['6.22e23', '-1', 0, '-622000000000000000000000'],
             ['1e-10', 3, 0, '0'],
             ['1e-10', 3, 11, '0.00000000003'],
             ['1e-10', 3, 12, '0.000000000033'],
         ];
+    }
+
+    /**
+     * @expectedException \DivisionByZeroError
+     *
+     * @return void
+     */
+    public function testDivideByZero(): void
+    {
+        $decimal = Decimal::create(1);
+
+        $decimal->divide(0, 10);
     }
 
     /**
@@ -873,7 +963,6 @@ class DecimalTest extends TestCase
         $result = $decimal->__debugInfo();
         $expected = [
             'value' => $value,
-            //'precision' => 2,
             'scale' => 1,
         ];
         $this->assertEquals($expected, $result);
