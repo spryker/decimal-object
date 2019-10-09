@@ -121,6 +121,7 @@ class DecimalTest extends TestCase
             'object' => [new stdClass()],
             'non-english/localized case1' => ['1018,9'],
             'non-english/localized case2' => ['1.018,9'],
+            'null' => [null],
         ];
     }
 
