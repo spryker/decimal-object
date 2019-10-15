@@ -13,11 +13,6 @@ class Decimal implements JsonSerializable
     public const RADIX_MARK = '.';
 
     public const ROUND_HALF_UP = PHP_ROUND_HALF_UP;
-    public const ROUND_HALF_DOWN = PHP_ROUND_HALF_DOWN;
-    public const ROUND_HALF_EVEN = PHP_ROUND_HALF_EVEN;
-    public const ROUND_HALF_ODD = PHP_ROUND_HALF_ODD;
-    public const ROUND_UP = 5;
-    public const ROUND_DOWN = 6;
     public const ROUND_CEIL = 7;
     public const ROUND_FLOOR = 8;
 
