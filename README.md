@@ -51,22 +51,3 @@ The following libraries are using the `Decimal` value object:
 
 - [dereuromark/cakephp-decimal](https://github.com/dereuromark/cakephp-decimal) as decimal type replacement for CakePHP ORM.
 
-
-## TODO
-- Internal state: normalized form as digits + exponent?
-- Rounding + ceil()/floor()
-- Assert/check edge case values (very small values)
-- sum(), average(), max(), min() as static methods ?
-- modulo()/power()?
-- shift()/toMagnitude($exponent) ?
-- API naming `add() => plus()`, `subtract() => minus()`, `multiply() => multipliedBy/times()`, `divide() => devidedBy()` ?
-
-
-Rounding Example:
-```php
-(string)$decimal->round(1); // '123.4'
-(string)$decimal->round(2); // '123.45'
-(string)$decimal->round(3); // '123.456'
-(string)$decimal->round(4); // '123.4560' (trailing zeroes are added)
-(string)$decimal->round(5); // '123.45600' (trailing zeroes are added)
-```
