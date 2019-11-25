@@ -14,7 +14,7 @@ var_dump(0.1 + 0.2);        // float(0.3)
 var_dump(0.1 + 0.2 - 0.3);  // float(5.5511151231258E-17)
 ```
 
-Handling them as string is a workaround, but as value object you can more easily encapsulate some of the logic. 
+Handling them as string is a workaround, but as value object you can more easily encapsulate some of the logic.
 
 ### Alternatives
 Solutions like https://php-decimal.io require a PHP extension (would make it faster, but also more difficult for some
@@ -39,7 +39,7 @@ Alpha-version. Use with Caution.
 
 ### Composer (preferred)
 ```
-composer require spryker/decimal-object:dev-master
+composer require spryker/decimal-object
 ```
 
 ## Usage
@@ -50,4 +50,3 @@ See [Documentation](/docs) for more details.
 The following libraries are using the `Decimal` value object:
 
 - [dereuromark/cakephp-decimal](https://github.com/dereuromark/cakephp-decimal) as decimal type replacement for CakePHP ORM.
-
