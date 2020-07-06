@@ -22,7 +22,7 @@ script:
   - if [[ $DEFAULT == 1 ]]; then composer test; fi
 
   - if [[ $CHECKS == 1 ]]; then composer cs-check; fi
-  - if [[ $CHECKS == 1 ]]; then composer phpstan; fi
+  - if [[ $CHECKS == 1 ]]; then composer stan; fi
 
 cache:
     directories:
