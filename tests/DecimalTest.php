@@ -103,8 +103,6 @@ class DecimalTest extends TestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
-     *
      * @dataProvider invalidValuesProvider
      *
      * @param mixed $value
@@ -113,6 +111,8 @@ class DecimalTest extends TestCase
      */
     public function testNewObjectWithInvalidValueThrowsException($value): void
     {
+        $this->expectException(InvalidArgumentException::class);
+
         Decimal::create($value);
     }
 
@@ -382,9 +382,6 @@ class DecimalTest extends TestCase
     }
 
     /**
-     * @expectedException \TypeError
-     * @expectedExceptionMessage Cannot cast Big Decimal to Float
-     *
      * @dataProvider bigFloatDataProvider
      *
      * @param string $value
@@ -394,6 +391,9 @@ class DecimalTest extends TestCase
     public function testToFloatForBigDecimalThrowsAnException(string $value): void
     {
         $decimal = Decimal::create($value);
+
+        $this->expectException(\TypeError::class);
+        $this->expectErrorMessage('Cannot cast Big Decimal to Float');
 
         $result = $decimal->toFloat();
     }
@@ -422,9 +422,6 @@ class DecimalTest extends TestCase
     }
 
     /**
-     * @expectedException \TypeError
-     * @expectedExceptionMessage Cannot cast Big Integer to Integer
-     *
      * @dataProvider bigIntDataProvider
      *
      * @param string $value
@@ -435,7 +432,10 @@ class DecimalTest extends TestCase
     {
         $decimal = Decimal::create($value);
 
-        $result = $decimal->toInt();
+        $this->expectException(\TypeError::class);
+        $this->expectErrorMessage('Cannot cast Big Integer to Integer');
+
+        $decimal->toInt();
     }
 
     /**
@@ -947,13 +947,13 @@ class DecimalTest extends TestCase
     }
 
     /**
-     * @expectedException \DivisionByZeroError
-     *
      * @return void
      */
     public function testDivideByZero(): void
     {
         $decimal = Decimal::create(1);
+
+        $this->expectException(\DivisionByZeroError::class);
 
         $decimal->divide(0, 10);
     }
