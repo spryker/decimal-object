@@ -1,6 +1,6 @@
 #  Decimal Object
 
-[![Build Status](https://api.travis-ci.org/spryker/decimal-object.svg?branch=master)](https://travis-ci.org/spryker/decimal-object)
+[![Build Status](https://github.com/spryker/decimal-object/workflows/CI/badge.svg?branch=master)](https://github.com/spryker/decimal-object/actions?query=workflow%3ACI+branch%3Amaster)
 [![License](https://poser.pugx.org/spryker/decimal-object/license)](https://packagist.org/packages/spryker/decimal-object)
 [![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%207.2-8892BF.svg)](https://php.net/)
 [![PHPStan](https://img.shields.io/badge/PHPStan-level%208-brightgreen.svg?style=flat)](https://phpstan.org/)
