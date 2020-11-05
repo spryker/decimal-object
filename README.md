@@ -29,9 +29,6 @@ servers to be available). For details see the [wiki](https://github.com/spryker/
 - Immutability.
 - Handle very large and very small numbers.
 
-Note: This library is a sandbox/showcase and for testing right now only.
-Alpha-version. Use with Caution.
-
 ## Installation
 
 ### Requirements
