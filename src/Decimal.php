@@ -81,7 +81,7 @@ class Decimal implements JsonSerializable
      */
     protected function parseValue($value): string
     {
-        if (!(is_scalar($value) || method_exists($value, '__toString'))) {
+        if ($value !== null && !(is_scalar($value) || method_exists($value, '__toString'))) {
             throw new InvalidArgumentException('Invalid value');
         }
 

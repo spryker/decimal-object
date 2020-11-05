@@ -7,10 +7,12 @@
 
 namespace SprykerTest\DecimalObject;
 
+use DivisionByZeroError;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Spryker\DecimalObject\Decimal;
 use stdClass;
+use TypeError;
 
 class DecimalTest extends TestCase
 {
@@ -392,7 +394,7 @@ class DecimalTest extends TestCase
     {
         $decimal = Decimal::create($value);
 
-        $this->expectException(\TypeError::class);
+        $this->expectException(TypeError::class);
         $this->expectErrorMessage('Cannot cast Big Decimal to Float');
 
         $result = $decimal->toFloat();
@@ -432,7 +434,7 @@ class DecimalTest extends TestCase
     {
         $decimal = Decimal::create($value);
 
-        $this->expectException(\TypeError::class);
+        $this->expectException(TypeError::class);
         $this->expectErrorMessage('Cannot cast Big Integer to Integer');
 
         $decimal->toInt();
@@ -953,7 +955,7 @@ class DecimalTest extends TestCase
     {
         $decimal = Decimal::create(1);
 
-        $this->expectException(\DivisionByZeroError::class);
+        $this->expectException(DivisionByZeroError::class);
 
         $decimal->divide(0, 10);
     }
