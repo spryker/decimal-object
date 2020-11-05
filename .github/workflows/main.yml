@@ -10,12 +10,6 @@ jobs:
       matrix:
         php-version: ['7.2', '7.4', 'nightly']
         db-type: [sqlite]
-        prefer-lowest: ['']
-        include:
-          - php-version: '7.2'
-            db-type: 'sqlite'
-            prefer-lowest: 'prefer-lowest'
-
     services:
       postgres:
         image: postgres
@@ -46,11 +40,7 @@ jobs:
     - name: Composer install
       run: |
         composer --version
-        if [[ ${{ matrix.prefer-lowest == 'prefer-lowest' }} ]]; then
-          composer update --prefer-lowest --prefer-stable
-        else
-          composer install
-        fi
+        composer install
 
     - name: Run PHPUnit
       run: |
@@ -81,6 +71,9 @@ jobs:
         extension-csv: mbstring, intl
         coverage: none
         pecl: false
+
+    - name: Composer Install
+      run: composer install
 
     - name: Run phpstan
       run: vendor/bin/phpstan analyse -c tests/phpstan.neon -l 8 --error-format=github src/
