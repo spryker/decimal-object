@@ -19,7 +19,7 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.php-version }}
-        extensions: mbstring, intl
+        extensions: mbstring, intl, bcmath
         coverage: pcov
 
     - name: Composer install
@@ -52,7 +52,7 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: '7.4'
-        extensions: mbstring, intl
+        extensions: mbstring, intl, bcmath
         coverage: none
 
     - name: Composer Install
