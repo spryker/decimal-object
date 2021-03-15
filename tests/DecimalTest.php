@@ -5,7 +5,7 @@
  * For full license information, please view the LICENSE file that was distributed with this source code.
  */
 
-namespace SprykerTest\DecimalObject;
+namespace Spryker\DecimalObject\Test;
 
 use DivisionByZeroError;
 use InvalidArgumentException;
