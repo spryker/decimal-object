@@ -201,7 +201,6 @@ class Decimal implements JsonSerializable
     }
 
     /**
-     *
      * @param string|int|float|static $value
      *
      * @return bool
