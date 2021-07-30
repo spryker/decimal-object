@@ -55,7 +55,7 @@ There is only one static method and acts as a convenience wrapper to create an o
 - `equals()`: This method is equivalent to the `==` operator.
 - `greaterThan()`: Returns true if the Decimal is greater than given value.
 - `lessThan()`: Returns true if the Decimal is smaller than given value.
-- `greatherThanOrEquals()`: Returns true if the Decimal is greater than or equal to the given value.
+- `greaterThanOrEquals()`: Returns true if the Decimal is greater than or equal to the given value.
 - `lessThanOrEquals()`: Returns true if the Decimal is greater than or equal to the given value.
 
 ### Math and Calculation
