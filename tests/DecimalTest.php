@@ -765,7 +765,7 @@ class DecimalTest extends TestCase
     public function testGreaterEquals($a, $b, int $expected): void
     {
         $decimal = Decimal::create($a);
-        $this->assertSame($expected >= 0, $decimal->greatherThanOrEquals($b));
+        $this->assertSame($expected >= 0, $decimal->greaterThanOrEquals($b));
     }
 
     /**

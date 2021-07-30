@@ -183,12 +183,25 @@ class Decimal implements JsonSerializable
      *
      * @return bool
      */
-    public function greatherThanOrEquals($value): bool
+    public function greaterThanOrEquals($value): bool
     {
         return ($this->compareTo($value) >= 0);
     }
 
     /**
+     * @deprecated Use {@link greaterThanOrEquals()} instead.
+     *
+     * @param string|int|float|static $value
+     *
+     * @return bool
+     */
+    public function greatherThanOrEquals($value): bool
+    {
+        return $this->greaterThanOrEquals($value);
+    }
+
+    /**
+     *
      * @param string|int|float|static $value
      *
      * @return bool
