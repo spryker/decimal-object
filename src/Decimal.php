@@ -14,11 +14,23 @@ use TypeError;
 
 class Decimal implements JsonSerializable
 {
+    /**
+     * @var string
+     */
     public const EXP_MARK = 'e';
+    /**
+     * @var string
+     */
     public const RADIX_MARK = '.';
 
     public const ROUND_HALF_UP = PHP_ROUND_HALF_UP;
+    /**
+     * @var int
+     */
     public const ROUND_CEIL = 7;
+    /**
+     * @var int
+     */
     public const ROUND_FLOOR = 8;
 
     /**
