@@ -9,13 +9,6 @@
 
     <rule ref="vendor/spryker/code-sniffer/SprykerStrict/ruleset.xml"/>
 
-    <rule ref="PSR2.Methods.MethodDeclaration.Underscore">
-        <severity>0</severity>
-    </rule>
-    <rule ref="PSR2.Classes.PropertyDeclaration.Underscore">
-        <severity>0</severity>
-    </rule>
-
     <!-- Define your own sniffs here -->
 
 </ruleset>
