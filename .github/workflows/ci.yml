@@ -28,7 +28,7 @@ jobs:
     - name: Composer install
       run: |
         composer --version
-        composer install
+        composer install --ignore-platform-reqs
 
     - name: Run PHPUnit
       run: |
