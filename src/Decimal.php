@@ -1,10 +1,11 @@
 <?php
-declare(strict_types=1);
 
 /**
  * MIT License
  * For full license information, please view the LICENSE file that was distributed with this source code.
  */
+
+declare(strict_types=1);
 
 namespace Spryker\DecimalObject;
 
@@ -114,7 +115,7 @@ class Decimal implements JsonSerializable
         /** @var string $value */
         $value = preg_replace(
             [
-                '/^^([\-]?)(\.)(.*)$/', // omitted leading zero
+                '/^(-?)(\.)(.*)$/', // omitted leading zero
                 '/^0+(.)(\..*)?$/', // multiple leading zeros
                 '/^(\+(.*)|(-)(0))$/', // leading positive sign, tolerate minus zero too
             ],
@@ -141,7 +142,7 @@ class Decimal implements JsonSerializable
      *
      * @return static
      */
-    public static function create($value, ?int $scale = null): Decimal
+    public static function create($value, ?int $scale = null): self
     {
         if ($scale === null && $value instanceof static) {
             return clone $value;
@@ -233,7 +234,7 @@ class Decimal implements JsonSerializable
      *
      * @return static
      */
-    public function add($value, ?int $scale = null): Decimal
+    public function add($value, ?int $scale = null): self
     {
         $decimal = static::create($value);
         $scale = $this->resultScale($this, $decimal, $scale);
@@ -271,7 +272,7 @@ class Decimal implements JsonSerializable
      *
      * @return static
      */
-    public function subtract($value, ?int $scale = null): Decimal
+    public function subtract($value, ?int $scale = null): self
     {
         $decimal = static::create($value);
         $scale = $this->resultScale($this, $decimal, $scale);
@@ -284,7 +285,7 @@ class Decimal implements JsonSerializable
      *
      * @return static
      */
-    public function trim(): Decimal
+    public function trim(): self
     {
         return $this->copy($this->integralPart, $this->trimDecimals($this->fractionalPart));
     }
@@ -318,7 +319,7 @@ class Decimal implements JsonSerializable
      *
      * @return static
      */
-    public function absolute(): Decimal
+    public function absolute(): self
     {
         return $this->copy($this->integralPart, $this->fractionalPart, false);
     }
@@ -328,7 +329,7 @@ class Decimal implements JsonSerializable
      *
      * @return static
      */
-    public function negate(): Decimal
+    public function negate(): self
     {
         return $this->copy(null, null, !$this->isNegative());
     }
@@ -379,7 +380,7 @@ class Decimal implements JsonSerializable
      *
      * @return static
      */
-    public function multiply($value, ?int $scale = null): Decimal
+    public function multiply($value, ?int $scale = null): self
     {
         $decimal = static::create($value);
         if ($scale === null) {
@@ -399,7 +400,7 @@ class Decimal implements JsonSerializable
      *
      * @return static
      */
-    public function divide($value, int $scale): Decimal
+    public function divide($value, int $scale): self
     {
         $decimal = static::create($value);
         if ($decimal->isZero()) {
@@ -417,7 +418,7 @@ class Decimal implements JsonSerializable
      *
      * @return static
      */
-    public function pow($exponent, ?int $scale = null): Decimal
+    public function pow($exponent, ?int $scale = null): self
     {
         if ($scale === null) {
             $scale = $this->scale();
@@ -433,7 +434,7 @@ class Decimal implements JsonSerializable
      *
      * @return static
      */
-    public function sqrt(?int $scale = null): Decimal
+    public function sqrt(?int $scale = null): self
     {
         if ($scale === null) {
             $scale = $this->scale();
@@ -450,7 +451,7 @@ class Decimal implements JsonSerializable
      *
      * @return static
      */
-    public function mod($value, ?int $scale = null): Decimal
+    public function mod($value, ?int $scale = null): self
     {
         if ($scale === null) {
             $scale = $this->scale();
@@ -468,7 +469,7 @@ class Decimal implements JsonSerializable
      *
      * @return static
      */
-    public function round(int $scale = 0, int $roundMode = self::ROUND_HALF_UP): Decimal
+    public function round(int $scale = 0, int $roundMode = self::ROUND_HALF_UP): self
     {
         $exponent = $scale + 1;
 
@@ -495,7 +496,7 @@ class Decimal implements JsonSerializable
      *
      * @return static
      */
-    public function floor(): Decimal
+    public function floor(): self
     {
         return $this->round(0, static::ROUND_FLOOR);
     }
@@ -505,7 +506,7 @@ class Decimal implements JsonSerializable
      *
      * @return static
      */
-    public function ceil(): Decimal
+    public function ceil(): self
     {
         return $this->round(0, static::ROUND_CEIL);
     }
@@ -519,7 +520,7 @@ class Decimal implements JsonSerializable
      *
      * @return static
      */
-    public function truncate(int $scale = 0): Decimal
+    public function truncate(int $scale = 0): self
     {
         if ($scale < 0) {
             throw new InvalidArgumentException('Scale must be >= 0.');
@@ -694,7 +695,7 @@ class Decimal implements JsonSerializable
      *
      * @return static
      */
-    protected function copy(?string $integerPart = null, ?string $decimalPart = null, ?bool $negative = null): Decimal
+    protected function copy(?string $integerPart = null, ?string $decimalPart = null, ?bool $negative = null): self
     {
         $clone = clone $this;
         if ($integerPart !== null) {
@@ -782,6 +783,7 @@ class Decimal implements JsonSerializable
      * @param int|null $scale
      *
      * @throws \InvalidArgumentException
+     * @throws \RuntimeException
      *
      * @return void
      */
@@ -795,7 +797,7 @@ class Decimal implements JsonSerializable
 
         $this->negative = $matches['pref'] === '-';
         $value = preg_replace('/\b\.0$/', '', $matches['value']);
-        if (empty($value)) {
+        if (!is_string($value)) {
             throw new RuntimeException('Value not usable.');
         }
         $exp = (int)$matches['exp'];
