@@ -606,7 +606,7 @@ class DecimalTest extends TestCase
      */
     protected function assertNativeRound(string $expected, $value, int $scale, int $roundMode): void
     {
-        $this->assertSame((new Decimal($expected))->trim()->toString(), (string)round($value, $scale, $roundMode));
+        $this->assertSame((new Decimal($expected))->trim()->toString(), (string)round((float)$value, $scale, $roundMode));
     }
 
     /**
@@ -655,7 +655,7 @@ class DecimalTest extends TestCase
      */
     protected function assertNativeFloor(string $expected, $value): void
     {
-        $this->assertSame($expected, (string)floor($value));
+        $this->assertSame($expected, (string)floor((float)$value));
     }
 
     /**
@@ -702,7 +702,7 @@ class DecimalTest extends TestCase
      */
     protected function assertNativeCeil(string $expected, $value): void
     {
-        $this->assertSame($expected, (string)ceil($value));
+        $this->assertSame($expected, (string)ceil((float)$value));
     }
 
     /**
