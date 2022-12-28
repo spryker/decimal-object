@@ -17,16 +17,6 @@ use TypeError;
 
 class Decimal implements JsonSerializable
 {
-    /**
-     * @var string
-     */
-    public const EXP_MARK = 'e';
-
-    /**
-     * @var string
-     */
-    public const RADIX_MARK = '.';
-
     public const ROUND_HALF_UP = PHP_ROUND_HALF_UP;
 
     /**
@@ -207,18 +197,6 @@ class Decimal implements JsonSerializable
     }
 
     /**
-     * @deprecated Use {@link greaterThanOrEquals()} instead.
-     *
-     * @param static|string|float|int $value
-     *
-     * @return bool
-     */
-    public function greatherThanOrEquals($value): bool
-    {
-        return $this->greaterThanOrEquals($value);
-    }
-
-    /**
      * @param static|string|float|int $value
      *
      * @return bool
@@ -276,7 +254,7 @@ class Decimal implements JsonSerializable
      *
      * @return int
      */
-    protected function resultScale($a, $b, ?int $scale = null): int
+    protected function resultScale(Decimal $a, Decimal $b, ?int $scale = null): int
     {
         if ($scale === null) {
             $scale = max($a->scale(), $b->scale());
