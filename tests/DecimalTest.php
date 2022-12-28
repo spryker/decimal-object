@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -88,6 +89,8 @@ class DecimalTest extends TestCase
             ['000000.5', '0.5'],
             ['  0.0   ', '0.0'],
             ['6.22e8', '622000000'],
+            ['6.22e-8', '0.0000000622'],
+            ['6.22E-8', '0.0000000622'],
             ['6.22e18', '6220000000000000000'],
             [PHP_INT_MAX, (string)PHP_INT_MAX],
             [PHP_INT_MAX . '.' . PHP_INT_MAX, PHP_INT_MAX . '.' . PHP_INT_MAX],
