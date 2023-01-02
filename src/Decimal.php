@@ -13,9 +13,10 @@ use DivisionByZeroError;
 use InvalidArgumentException;
 use JsonSerializable;
 use RuntimeException;
+use Stringable;
 use TypeError;
 
-class Decimal implements JsonSerializable
+class Decimal implements JsonSerializable, Stringable
 {
     public const ROUND_HALF_UP = PHP_ROUND_HALF_UP;
 
@@ -33,37 +34,31 @@ class Decimal implements JsonSerializable
      * Integral part of this decimal number.
      *
      * Value before the separator. Cannot be negative.
-     *
-     * @var string
      */
-    protected $integralPart;
+    protected string $integralPart = '0';
 
     /**
      * Fractional part of this decimal number.
      *
      * Value after the separator (decimals) as string. Must be numbers only.
-     *
-     * @var string
      */
-    protected $fractionalPart;
+    protected string $fractionalPart = '';
 
     /**
      * @var bool
      */
-    protected $negative;
+    protected bool $negative = false;
 
     /**
      * decimal(10,6) => 6
-     *
-     * @var int
      */
-    protected $scale;
+    protected int $scale = 0;
 
     /**
-     * @param static|string|float|int $value
+     * @param object|string|float|int $value
      * @param int|null $scale
      */
-    public function __construct($value, ?int $scale = null)
+    public function __construct(float|object|int|string $value, ?int $scale = null)
     {
         $value = $this->parseValue($value);
         $value = $this->normalizeValue($value);
@@ -87,9 +82,9 @@ class Decimal implements JsonSerializable
      *
      * @return string
      */
-    protected function parseValue($value): string
+    protected function parseValue(mixed $value): string
     {
-        if ($value !== null && !(is_scalar($value) || method_exists($value, '__toString'))) {
+        if ($value !== null && !(is_scalar($value) || $value instanceof Stringable)) {
             throw new InvalidArgumentException('Invalid value');
         }
 
@@ -137,12 +132,12 @@ class Decimal implements JsonSerializable
      * Otherwise, create a new Decimal instance from the given value and return
      * it.
      *
-     * @param static|string|float|int $value
+     * @param object|string|float|int $value
      * @param int|null $scale
      *
      * @return static
      */
-    public static function create($value, ?int $scale = null): self
+    public static function create(float|int|string|object $value, ?int $scale = null): static
     {
         if ($scale === null && $value instanceof static) {
             return clone $value;
@@ -156,54 +151,54 @@ class Decimal implements JsonSerializable
      *
      * This method is equivalent to the `==` operator.
      *
-     * @param static|string|float|int $value
+     * @param object|string|float|int $value
      *
      * @return bool TRUE if this decimal is considered equal to the given value.
      *  Equal decimal values tie-break on precision.
      */
-    public function equals($value): bool
+    public function equals(float|int|string|object $value): bool
     {
         return $this->compareTo($value) === 0;
     }
 
     /**
-     * @param static|string|float|int $value
+     * @param object|string|float|int $value
      *
      * @return bool
      */
-    public function greaterThan($value): bool
+    public function greaterThan(float|int|string|object $value): bool
     {
         return $this->compareTo($value) > 0;
     }
 
     /**
-     * @param static|string|float|int $value
+     * @param object|string|float|int $value
      *
      * @return bool
      */
-    public function lessThan($value): bool
+    public function lessThan(float|int|string|object $value): bool
     {
         return $this->compareTo($value) < 0;
     }
 
     /**
-     * @param static|string|float|int $value
+     * @param object|string|float|int $value
      *
      * @return bool
      */
-    public function greaterThanOrEquals($value): bool
+    public function greaterThanOrEquals(float|int|string|object $value): bool
     {
-        return ($this->compareTo($value) >= 0);
+        return $this->compareTo($value) >= 0;
     }
 
     /**
-     * @param static|string|float|int $value
+     * @param object|string|float|int $value
      *
      * @return bool
      */
-    public function lessThanOrEquals($value): bool
+    public function lessThanOrEquals(float|int|string|object $value): bool
     {
-        return ($this->compareTo($value) <= 0);
+        return $this->compareTo($value) <= 0;
     }
 
     /**
@@ -214,11 +209,11 @@ class Decimal implements JsonSerializable
      * - `0` if the instance is equal to $value, or
      * - `1` if the instance is greater than $value.
      *
-     * @param static|string|float|int $value
+     * @param object|string|float|int $value
      *
      * @return int
      */
-    public function compareTo($value): int
+    public function compareTo(float|int|string|object $value): int
     {
         $decimal = static::create($value);
         $scale = max($this->scale(), $decimal->scale());
@@ -229,12 +224,12 @@ class Decimal implements JsonSerializable
     /**
      * Add $value to this Decimal and return the sum as a new Decimal.
      *
-     * @param static|string|float|int $value
+     * @param object|string|float|int $value
      * @param int|null $scale
      *
      * @return static
      */
-    public function add($value, ?int $scale = null): self
+    public function add(float|int|string|object $value, ?int $scale = null): static
     {
         $decimal = static::create($value);
         $scale = $this->resultScale($this, $decimal, $scale);
@@ -248,8 +243,8 @@ class Decimal implements JsonSerializable
      * If $scale is specified and is a valid positive integer, return it.
      * Otherwise, return the higher of the scales of the operands.
      *
-     * @param static $a
-     * @param static $b
+     * @param \Spryker\DecimalObject\Decimal $a
+     * @param \Spryker\DecimalObject\Decimal $b
      * @param int|null $scale
      *
      * @return int
@@ -267,12 +262,12 @@ class Decimal implements JsonSerializable
      * Subtract $value from this Decimal and return the difference as a new
      * Decimal.
      *
-     * @param static|string|float|int $value
+     * @param object|string|float|int $value
      * @param int|null $scale
      *
      * @return static
      */
-    public function subtract($value, ?int $scale = null): self
+    public function subtract(float|int|string|object $value, ?int $scale = null): static
     {
         $decimal = static::create($value);
         $scale = $this->resultScale($this, $decimal, $scale);
@@ -285,7 +280,7 @@ class Decimal implements JsonSerializable
      *
      * @return static
      */
-    public function trim(): self
+    public function trim(): static
     {
         return $this->copy($this->integralPart, $this->trimDecimals($this->fractionalPart));
     }
@@ -319,7 +314,7 @@ class Decimal implements JsonSerializable
      *
      * @return static
      */
-    public function absolute(): self
+    public function absolute(): static
     {
         return $this->copy($this->integralPart, $this->fractionalPart, false);
     }
@@ -329,7 +324,7 @@ class Decimal implements JsonSerializable
      *
      * @return static
      */
-    public function negate(): self
+    public function negate(): static
     {
         return $this->copy(null, null, !$this->isNegative());
     }
@@ -380,7 +375,7 @@ class Decimal implements JsonSerializable
      *
      * @return static
      */
-    public function multiply($value, ?int $scale = null): self
+    public function multiply(float|int|string|Decimal $value, ?int $scale = null): static
     {
         $decimal = static::create($value);
         if ($scale === null) {
@@ -400,7 +395,7 @@ class Decimal implements JsonSerializable
      *
      * @return static
      */
-    public function divide($value, int $scale): self
+    public function divide(float|int|string|Decimal $value, int $scale): static
     {
         $decimal = static::create($value);
         if ($decimal->isZero()) {
@@ -418,7 +413,7 @@ class Decimal implements JsonSerializable
      *
      * @return static
      */
-    public function pow($exponent, ?int $scale = null): self
+    public function pow(int|string|Decimal $exponent, ?int $scale = null): static
     {
         if ($scale === null) {
             $scale = $this->scale();
@@ -434,7 +429,7 @@ class Decimal implements JsonSerializable
      *
      * @return static
      */
-    public function sqrt(?int $scale = null): self
+    public function sqrt(?int $scale = null): static
     {
         if ($scale === null) {
             $scale = $this->scale();
@@ -451,7 +446,7 @@ class Decimal implements JsonSerializable
      *
      * @return static
      */
-    public function mod($value, ?int $scale = null): self
+    public function mod(int|string|Decimal $value, ?int $scale = null): static
     {
         if ($scale === null) {
             $scale = $this->scale();
@@ -469,24 +464,16 @@ class Decimal implements JsonSerializable
      *
      * @return static
      */
-    public function round(int $scale = 0, int $roundMode = self::ROUND_HALF_UP): self
+    public function round(int $scale = 0, int $roundMode = self::ROUND_HALF_UP): static
     {
         $exponent = $scale + 1;
 
         $e = bcpow('10', (string)$exponent);
-        switch ($roundMode) {
-            case static::ROUND_FLOOR:
-                $v = bcdiv(bcadd(bcmul((string)$this, $e, 0), $this->isNegative() ? '-9' : '0'), $e, 0);
-
-                break;
-            case static::ROUND_CEIL:
-                $v = bcdiv(bcadd(bcmul((string)$this, $e, 0), $this->isNegative() ? '0' : '9'), $e, 0);
-
-                break;
-            case static::ROUND_HALF_UP:
-            default:
-                $v = bcdiv(bcadd(bcmul((string)$this, $e, 0), $this->isNegative() ? '-5' : '5'), $e, $scale);
-        }
+        $v = match ($roundMode) {
+            static::ROUND_FLOOR => bcdiv(bcadd(bcmul((string)$this, $e, 0), $this->isNegative() ? '-9' : '0'), $e, 0),
+            static::ROUND_CEIL => bcdiv(bcadd(bcmul((string)$this, $e, 0), $this->isNegative() ? '0' : '9'), $e, 0),
+            default => bcdiv(bcadd(bcmul((string)$this, $e, 0), $this->isNegative() ? '-5' : '5'), $e, $scale),
+        };
 
         return new static($v);
     }
@@ -496,7 +483,7 @@ class Decimal implements JsonSerializable
      *
      * @return static
      */
-    public function floor(): self
+    public function floor(): static
     {
         return $this->round(0, static::ROUND_FLOOR);
     }
@@ -506,7 +493,7 @@ class Decimal implements JsonSerializable
      *
      * @return static
      */
-    public function ceil(): self
+    public function ceil(): static
     {
         return $this->round(0, static::ROUND_CEIL);
     }
@@ -520,7 +507,7 @@ class Decimal implements JsonSerializable
      *
      * @return static
      */
-    public function truncate(int $scale = 0): self
+    public function truncate(int $scale = 0): static
     {
         if ($scale < 0) {
             throw new InvalidArgumentException('Scale must be >= 0.');
@@ -608,7 +595,7 @@ class Decimal implements JsonSerializable
             }
 
             $value = (string)$integralPart;
-            if (strpos($value, '.') === false) {
+            if (!str_contains($value, '.')) {
                 $value .= '.';
             }
             $value .= $this->fractionalPart;
@@ -617,7 +604,7 @@ class Decimal implements JsonSerializable
             // 00002
             // 20000
             $fractionalPart = $this->fractionalPart;
-            while (substr($fractionalPart, 0, 1) === '0') {
+            while (str_starts_with($fractionalPart, '0')) {
                 $fractionalPart = substr($fractionalPart, 1);
                 $exponent--;
             }
@@ -695,7 +682,7 @@ class Decimal implements JsonSerializable
      *
      * @return static
      */
-    protected function copy(?string $integerPart = null, ?string $decimalPart = null, ?bool $negative = null): self
+    protected function copy(?string $integerPart = null, ?string $decimalPart = null, ?bool $negative = null): static
     {
         $clone = clone $this;
         if ($integerPart !== null) {
@@ -731,7 +718,7 @@ class Decimal implements JsonSerializable
             return;
         }
 
-        if (strpos($value, '.') !== false) {
+        if (str_contains($value, '.')) {
             $this->fromFloat($value);
 
             return;
@@ -782,8 +769,8 @@ class Decimal implements JsonSerializable
      * @param string $value
      * @param int|null $scale
      *
-     * @throws \InvalidArgumentException
      * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      *
      * @return void
      */
@@ -815,7 +802,7 @@ class Decimal implements JsonSerializable
             $this->integralPart = bcmul($matches['value'], bcpow('10', (string)$exp));
 
             $pos = strlen((string)$this->integralPart);
-            if (strpos($value, '.') !== false) {
+            if (str_contains($value, '.')) {
                 $pos++;
             }
             // Compatibility for PHP VERSION < 8.0 (substr returns string and false in Version below 8)

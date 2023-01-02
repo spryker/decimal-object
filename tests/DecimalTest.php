@@ -26,7 +26,7 @@ class DecimalTest extends TestCase
      *
      * @return void
      */
-    public function testNewObject($value, string $expected): void
+    public function testNewObject(mixed $value, string $expected): void
     {
         $decimal = new Decimal($value);
         $this->assertSame($expected, (string)$decimal);
@@ -53,7 +53,7 @@ class DecimalTest extends TestCase
      *
      * @return void
      */
-    public function testCreate($value, string $expected): void
+    public function testCreate(mixed $value, string $expected): void
     {
         $decimal = Decimal::create($value);
         $this->assertSame($expected, (string)$decimal);
@@ -112,12 +112,15 @@ class DecimalTest extends TestCase
      * @dataProvider invalidValuesProvider
      *
      * @param mixed $value
+     * @param string $expectedException
      *
      * @return void
      */
-    public function testNewObjectWithInvalidValueThrowsException($value): void
-    {
-        $this->expectException(InvalidArgumentException::class);
+    public function testNewObjectWithInvalidValueThrowsException(
+        mixed $value,
+        string $expectedException
+    ): void {
+        $this->expectException($expectedException);
 
         Decimal::create($value);
     }
@@ -128,11 +131,11 @@ class DecimalTest extends TestCase
     public function invalidValuesProvider(): array
     {
         return [
-            'invalid string' => ['xyz'],
-            'object' => [new stdClass()],
-            'non-english/localized case1' => ['1018,9'],
-            'non-english/localized case2' => ['1.018,9'],
-            'null' => [null],
+            'invalid string' => ['xyz', InvalidArgumentException::class],
+            'object' => [new stdClass(), InvalidArgumentException::class],
+            'non-english/localized case1' => ['1018,9', InvalidArgumentException::class],
+            'non-english/localized case2' => ['1.018,9', InvalidArgumentException::class],
+            'null' => [null, TypeError::class],
         ];
     }
 
@@ -174,7 +177,7 @@ class DecimalTest extends TestCase
      *
      * @return void
      */
-    public function testIsInteger($value, bool $expected): void
+    public function testIsInteger(mixed $value, bool $expected): void
     {
         $decimal = Decimal::create($value);
         $this->assertSame($expected, $decimal->isInteger());
@@ -207,7 +210,7 @@ class DecimalTest extends TestCase
      *
      * @return void
      */
-    public function testIsZero($value, bool $expected): void
+    public function testIsZero(mixed $value, bool $expected): void
     {
         $decimal = Decimal::create($value);
         $this->assertSame($expected, $decimal->isZero());
