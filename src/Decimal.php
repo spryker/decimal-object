@@ -595,7 +595,7 @@ class Decimal implements JsonSerializable, Stringable
             }
 
             $value = (string)$integralPart;
-            if (!str_contains($value, '.')) {
+            if (strpos($value, '.') === false) {
                 $value .= '.';
             }
             $value .= $this->fractionalPart;
@@ -604,7 +604,7 @@ class Decimal implements JsonSerializable, Stringable
             // 00002
             // 20000
             $fractionalPart = $this->fractionalPart;
-            while (str_starts_with($fractionalPart, '0')) {
+            while (substr($fractionalPart, 0, 1) === '0') {
                 $fractionalPart = substr($fractionalPart, 1);
                 $exponent--;
             }
@@ -718,7 +718,7 @@ class Decimal implements JsonSerializable, Stringable
             return;
         }
 
-        if (str_contains($value, '.')) {
+        if (strpos($value, '.') !== false) {
             $this->fromFloat($value);
 
             return;
@@ -802,7 +802,7 @@ class Decimal implements JsonSerializable, Stringable
             $this->integralPart = bcmul($matches['value'], bcpow('10', (string)$exp));
 
             $pos = strlen((string)$this->integralPart);
-            if (str_contains($value, '.')) {
+            if (strpos($value, '.') !== false) {
                 $pos++;
             }
             // Compatibility for PHP VERSION < 8.0 (substr returns string and false in Version below 8)
