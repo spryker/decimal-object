@@ -818,9 +818,11 @@ class Decimal implements JsonSerializable
 
         $this->negative = $matches[1] === '-';
         $value = preg_replace('/\b\.0$/', '', $matches[2]);
-        if ($value === null) {
+        // @codeCoverageIgnoreStart
+        if (!is_string($value)) {
             throw new RuntimeException('Unexpected value result.');
         }
+        // @codeCoverageIgnoreEnd
         $exp = (int)$matches[3];
 
         if ($exp < 0) {
