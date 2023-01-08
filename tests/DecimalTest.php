@@ -5,6 +5,8 @@
  * For full license information, please view the LICENSE file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Spryker\DecimalObject\Test;
 
 use DivisionByZeroError;
@@ -24,7 +26,7 @@ class DecimalTest extends TestCase
      *
      * @return void
      */
-    public function testNewObject($value, string $expected): void
+    public function testNewObject(mixed $value, string $expected): void
     {
         $decimal = new Decimal($value);
         $this->assertSame($expected, (string)$decimal);
@@ -51,7 +53,7 @@ class DecimalTest extends TestCase
      *
      * @return void
      */
-    public function testCreate($value, string $expected): void
+    public function testCreate(mixed $value, string $expected): void
     {
         $decimal = Decimal::create($value);
         $this->assertSame($expected, (string)$decimal);
@@ -88,6 +90,8 @@ class DecimalTest extends TestCase
             ['000000.5', '0.5'],
             ['  0.0   ', '0.0'],
             ['6.22e8', '622000000'],
+            ['6.22e-8', '0.0000000622'],
+            ['6.22E-8', '0.0000000622'],
             ['6.22e18', '6220000000000000000'],
             [PHP_INT_MAX, (string)PHP_INT_MAX],
             [PHP_INT_MAX . '.' . PHP_INT_MAX, PHP_INT_MAX . '.' . PHP_INT_MAX],
@@ -108,12 +112,15 @@ class DecimalTest extends TestCase
      * @dataProvider invalidValuesProvider
      *
      * @param mixed $value
+     * @param string $expectedException
      *
      * @return void
      */
-    public function testNewObjectWithInvalidValueThrowsException($value): void
-    {
-        $this->expectException(InvalidArgumentException::class);
+    public function testNewObjectWithInvalidValueThrowsException(
+        mixed $value,
+        string $expectedException
+    ): void {
+        $this->expectException($expectedException);
 
         Decimal::create($value);
     }
@@ -124,11 +131,11 @@ class DecimalTest extends TestCase
     public function invalidValuesProvider(): array
     {
         return [
-            'invalid string' => ['xyz'],
-            'object' => [new stdClass()],
-            'non-english/localized case1' => ['1018,9'],
-            'non-english/localized case2' => ['1.018,9'],
-            'null' => [null],
+            'invalid string' => ['xyz', InvalidArgumentException::class],
+            'object' => [new stdClass(), InvalidArgumentException::class],
+            'non-english/localized case1' => ['1018,9', InvalidArgumentException::class],
+            'non-english/localized case2' => ['1.018,9', InvalidArgumentException::class],
+            'null' => [null, TypeError::class],
         ];
     }
 
@@ -170,7 +177,7 @@ class DecimalTest extends TestCase
      *
      * @return void
      */
-    public function testIsInteger($value, bool $expected): void
+    public function testIsInteger(mixed $value, bool $expected): void
     {
         $decimal = Decimal::create($value);
         $this->assertSame($expected, $decimal->isInteger());
@@ -203,7 +210,7 @@ class DecimalTest extends TestCase
      *
      * @return void
      */
-    public function testIsZero($value, bool $expected): void
+    public function testIsZero(mixed $value, bool $expected): void
     {
         $decimal = Decimal::create($value);
         $this->assertSame($expected, $decimal->isZero());
@@ -603,7 +610,7 @@ class DecimalTest extends TestCase
      */
     protected function assertNativeRound(string $expected, $value, int $scale, int $roundMode): void
     {
-        $this->assertSame((new Decimal($expected))->trim()->toString(), (string)round($value, $scale, $roundMode));
+        $this->assertSame((new Decimal($expected))->trim()->toString(), (string)round((float)$value, $scale, $roundMode));
     }
 
     /**
@@ -652,7 +659,7 @@ class DecimalTest extends TestCase
      */
     protected function assertNativeFloor(string $expected, $value): void
     {
-        $this->assertSame($expected, (string)floor($value));
+        $this->assertSame($expected, (string)floor((float)$value));
     }
 
     /**
@@ -699,7 +706,7 @@ class DecimalTest extends TestCase
      */
     protected function assertNativeCeil(string $expected, $value): void
     {
-        $this->assertSame($expected, (string)ceil($value));
+        $this->assertSame($expected, (string)ceil((float)$value));
     }
 
     /**
