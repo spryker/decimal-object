@@ -817,6 +817,7 @@ class Decimal implements JsonSerializable
         }
 
         $this->negative = $matches[1] === '-';
+        /** @var string $value */
         $value = preg_replace('/\b\.0$/', '', $matches[2]);
         // @codeCoverageIgnoreStart
         if (!is_string($value)) {

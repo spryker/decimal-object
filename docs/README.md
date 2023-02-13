@@ -78,3 +78,10 @@ $decimalAdded = $decimalOne->add($decimalTwo); // Now '3.3'
 ```
 
 Note that due to immutability `$decimalOne` is not modified here. The re-assignment is necessary for the operation to persist.
+
+
+## Contributing
+
+You can contribute as pull request directly:
+- Target `master` branch for: bugfixes, improvements that are BC
+- Target `next` branch (next major version) for: Any BC breaking behavior, cleanup like removing deprecations or alike
