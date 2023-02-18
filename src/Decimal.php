@@ -10,7 +10,6 @@ namespace Spryker\DecimalObject;
 use DivisionByZeroError;
 use InvalidArgumentException;
 use JsonSerializable;
-use RuntimeException;
 use TypeError;
 
 class Decimal implements JsonSerializable
@@ -803,7 +802,6 @@ class Decimal implements JsonSerializable
      * @param int|null $scale
      *
      * @throws \InvalidArgumentException
-     * @throws \RuntimeException
      *
      * @return void
      */
@@ -817,12 +815,8 @@ class Decimal implements JsonSerializable
         }
 
         $this->negative = $matches[1] === '-';
+        /** @var string $value */
         $value = preg_replace('/\b\.0$/', '', $matches[2]);
-        // @codeCoverageIgnoreStart
-        if (!is_string($value)) {
-            throw new RuntimeException('Unexpected value result.');
-        }
-        // @codeCoverageIgnoreEnd
         $exp = (int)$matches[3];
 
         if ($exp < 0) {
@@ -837,7 +831,7 @@ class Decimal implements JsonSerializable
         } else {
             $this->integralPart = bcmul($matches[2], bcpow('10', (string)$exp));
 
-            $pos = strlen((string)$this->integralPart);
+            $pos = strlen($this->integralPart);
             if (strpos($value, '.') !== false) {
                 $pos++;
             }
