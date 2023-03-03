@@ -39,11 +39,9 @@
     "scripts": {
         "test": "phpunit",
         "test-coverage": "phpunit --log-junit tmp/coverage/unitreport.xml --coverage-html tmp/coverage --coverage-clover tmp/coverage/coverage.xml",
-        "stan": "vendor/bin/phpstan.phar analyse",
-        "lowest": "validate-prefer-lowest",
-        "lowest-setup": "composer update --prefer-lowest --prefer-stable --prefer-dist --no-interaction && cp composer.json composer.backup && composer require --dev dereuromark/composer-prefer-lowest && mv composer.backup composer.json",
-        "cs-check": "vendor/bin/phpcs",
-        "cs-fix": "vendor/bin/phpcbf"
+        "stan": "vendor/bin/phpstan.phar analyse -c tests/phpstan.neon -l 8 src/",
+        "cs-check": "vendor/bin/phpcs --colors --standard=ruleset.xml -s -p src/ tests/",
+        "cs-fix": "vendor/bin/phpcbf --colors --standard=ruleset.xml -p src/ tests/"
     },
     "config": {
         "allow-plugins": {
