@@ -13,10 +13,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-version: ['7.2', '8.0']
+        php-version: ['7.3', '8.2']
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -32,14 +32,14 @@ jobs:
 
     - name: Run PHPUnit
       run: |
-        if [[ ${{ matrix.php-version }} == '7.2' ]]; then
+        if [[ ${{ matrix.php-version }} == '7.3' ]]; then
           vendor/bin/phpunit --coverage-clover=coverage.xml
         else
           vendor/bin/phpunit
         fi
 
     - name: Code Coverage Report
-      if: success() && matrix.php-version == '7.2'
+      if: success() && matrix.php-version == '7.3'
       uses: codecov/codecov-action@v1
 
   validation:
@@ -47,12 +47,12 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '7.4'
+        php-version: '8.1'
         extensions: mbstring, intl, bcmath
         coverage: none
 
@@ -60,7 +60,7 @@ jobs:
       run: composer install
 
     - name: Run phpstan
-      run: vendor/bin/phpstan analyse -c tests/phpstan.neon -l 8 --error-format=github src/
+      run: vendor/bin/phpstan analyse --error-format=github
 
     - name: Run phpcs
       run: composer cs-check
