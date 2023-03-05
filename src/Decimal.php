@@ -838,7 +838,7 @@ class Decimal implements JsonSerializable
             $this->fractionalPart = rtrim(substr($value, $pos), '.');
 
             if ($scale !== null) {
-                $this->fractionalPart = str_pad($this->fractionalPart, $scale - strlen((string)$this->integralPart), '0');
+                $this->fractionalPart = str_pad($this->fractionalPart, $scale - strlen($this->integralPart), '0');
             }
         }
     }
