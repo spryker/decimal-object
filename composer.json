@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "php": ">=7.3",
+        "php": ">=8.0",
         "ext-bcmath": "*",
         "ext-json": "*"
     },
@@ -40,8 +40,8 @@
         "test": "phpunit",
         "test-coverage": "phpunit --log-junit tmp/coverage/unitreport.xml --coverage-html tmp/coverage --coverage-clover tmp/coverage/coverage.xml",
         "stan": "vendor/bin/phpstan.phar analyse -c tests/phpstan.neon -l 8 src/",
-        "cs-check": "vendor/bin/phpcs --colors --standard=ruleset.xml -s -p src/ tests/",
-        "cs-fix": "vendor/bin/phpcbf --colors --standard=ruleset.xml -p src/ tests/"
+        "cs-check": "vendor/bin/phpcs --colors --standard=vendor/spryker/code-sniffer/Spryker/ruleset.xml -s -p src/ tests/",
+        "cs-fix": "vendor/bin/phpcbf --colors --standard=vendor/spryker/code-sniffer/Spryker/ruleset.xml -p src/ tests/"
     },
     "config": {
         "allow-plugins": {
