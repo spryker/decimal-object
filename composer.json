@@ -10,14 +10,14 @@
         }
     ],
     "require": {
-        "php": ">=8.2",
+        "php": ">=8.1",
         "ext-bcmath": "*",
         "ext-json": "*"
     },
     "require-dev": {
-        "phpunit/phpunit": "^8.0.0 || ^9.0.0",
+        "phpunit/phpunit": "^9.5.0",
         "spryker/code-sniffer": "@stable",
-        "phpstan/phpstan": "^0.12"
+        "phpstan/phpstan": "^1.0.0"
     },
     "autoload": {
         "psr-4": {
@@ -40,9 +40,12 @@
         "test": "phpunit",
         "test-coverage": "phpunit --log-junit tmp/coverage/unitreport.xml --coverage-html tmp/coverage --coverage-clover tmp/coverage/coverage.xml",
         "stan": "vendor/bin/phpstan.phar analyse -c tests/phpstan.neon -l 8 src/",
-        "lowest": "validate-prefer-lowest",
-        "lowest-setup": "composer update --prefer-lowest --prefer-stable --prefer-dist --no-interaction && cp composer.json composer.backup && composer require --dev dereuromark/composer-prefer-lowest && mv composer.backup composer.json",
-        "cs-check": "vendor/bin/phpcs --colors --standard=ruleset.xml -s -p src/ tests/",
-        "cs-fix": "vendor/bin/phpcbf --colors --standard=ruleset.xml -p src/ tests/"
+        "cs-check": "vendor/bin/phpcs --colors --standard=vendor/spryker/code-sniffer/Spryker/ruleset.xml -s -p src/ tests/",
+        "cs-fix": "vendor/bin/phpcbf --colors --standard=vendor/spryker/code-sniffer/Spryker/ruleset.xml -p src/ tests/"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
     }
 }

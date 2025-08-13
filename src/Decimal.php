@@ -14,11 +14,26 @@ use TypeError;
 
 class Decimal implements JsonSerializable
 {
+    /**
+     * @var string
+     */
     public const EXP_MARK = 'e';
+
+    /**
+     * @var string
+     */
     public const RADIX_MARK = '.';
 
     public const ROUND_HALF_UP = PHP_ROUND_HALF_UP;
+
+    /**
+     * @var int
+     */
     public const ROUND_CEIL = 7;
+
+    /**
+     * @var int
+     */
     public const ROUND_FLOOR = 8;
 
     /**
@@ -52,7 +67,7 @@ class Decimal implements JsonSerializable
     protected $scale;
 
     /**
-     * @param string|int|float|static $value
+     * @param static|string|float|int $value
      * @param int|null $scale
      */
     public function __construct($value, ?int $scale = null)
@@ -116,7 +131,7 @@ class Decimal implements JsonSerializable
                 '${1}${2}',
                 '${4}${2}',
             ],
-            $value
+            $value,
         );
 
         return $value;
@@ -129,7 +144,7 @@ class Decimal implements JsonSerializable
      * Otherwise, create a new Decimal instance from the given value and return
      * it.
      *
-     * @param string|int|float|static $value
+     * @param static|string|float|int $value
      * @param int|null $scale
      *
      * @return static
@@ -148,7 +163,7 @@ class Decimal implements JsonSerializable
      *
      * This method is equivalent to the `==` operator.
      *
-     * @param string|int|float|static $value
+     * @param static|string|float|int $value
      *
      * @return bool TRUE if this decimal is considered equal to the given value.
      *  Equal decimal values tie-break on precision.
@@ -159,7 +174,7 @@ class Decimal implements JsonSerializable
     }
 
     /**
-     * @param string|int|float|static $value
+     * @param static|string|float|int $value
      *
      * @return bool
      */
@@ -169,7 +184,7 @@ class Decimal implements JsonSerializable
     }
 
     /**
-     * @param string|int|float|static $value
+     * @param static|string|float|int $value
      *
      * @return bool
      */
@@ -179,7 +194,7 @@ class Decimal implements JsonSerializable
     }
 
     /**
-     * @param string|int|float|static $value
+     * @param static|string|float|int $value
      *
      * @return bool
      */
@@ -191,7 +206,7 @@ class Decimal implements JsonSerializable
     /**
      * @deprecated Use {@link greaterThanOrEquals()} instead.
      *
-     * @param string|int|float|static $value
+     * @param static|string|float|int $value
      *
      * @return bool
      */
@@ -201,7 +216,7 @@ class Decimal implements JsonSerializable
     }
 
     /**
-     * @param string|int|float|static $value
+     * @param static|string|float|int $value
      *
      * @return bool
      */
@@ -218,7 +233,7 @@ class Decimal implements JsonSerializable
      * - `0` if the instance is equal to $value, or
      * - `1` if the instance is greater than $value.
      *
-     * @param string|int|float|static $value
+     * @param static|string|float|int $value
      *
      * @return int
      */
@@ -233,7 +248,7 @@ class Decimal implements JsonSerializable
     /**
      * Add $value to this Decimal and return the sum as a new Decimal.
      *
-     * @param string|int|float|static $value
+     * @param static|string|float|int $value
      * @param int|null $scale
      *
      * @return static
@@ -271,7 +286,7 @@ class Decimal implements JsonSerializable
      * Subtract $value from this Decimal and return the difference as a new
      * Decimal.
      *
-     * @param string|int|float|static $value
+     * @param static|string|float|int $value
      * @param int|null $scale
      *
      * @return static
@@ -379,7 +394,7 @@ class Decimal implements JsonSerializable
     /**
      * Multiply this Decimal by $value and return the product as a new Decimal.
      *
-     * @param string|int|float|static $value
+     * @param static|string|float|int $value
      * @param int|null $scale
      *
      * @return static
@@ -397,7 +412,7 @@ class Decimal implements JsonSerializable
     /**
      * Divide this Decimal by $value and return the quotient as a new Decimal.
      *
-     * @param string|int|float|static $value
+     * @param static|string|float|int $value
      * @param int $scale
      *
      * @throws \DivisionByZeroError if $value is zero.
@@ -800,6 +815,7 @@ class Decimal implements JsonSerializable
         }
 
         $this->negative = $matches[1] === '-';
+        /** @var string $value */
         $value = preg_replace('/\b\.0$/', '', $matches[2]);
         $exp = (int)$matches[3];
 
