@@ -3,7 +3,7 @@
 [![Build Status](https://github.com/spryker/decimal-object/workflows/CI/badge.svg?branch=master)](https://github.com/spryker/decimal-object/actions?query=workflow%3ACI+branch%3Amaster)
 [![codecov](https://codecov.io/gh/spryker/decimal-object/branch/master/graph/badge.svg?token=L1thFB9nOG)](https://codecov.io/gh/spryker/decimal-object)
 [![Latest Stable Version](https://poser.pugx.org/spryker/decimal-object/v/stable.svg)](https://packagist.org/packages/spryker/decimal-object)
-[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%208.0-8892BF.svg)](https://php.net/)
+[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%208.1-8892BF.svg)](https://php.net/)
 [![PHPStan](https://img.shields.io/badge/PHPStan-level%208-brightgreen.svg?style=flat)](https://phpstan.org/)
 [![License](https://poser.pugx.org/spryker/decimal-object/license)](https://packagist.org/packages/spryker/decimal-object)
 
