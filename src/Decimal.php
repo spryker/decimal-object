@@ -242,7 +242,7 @@ class Decimal implements JsonSerializable
         $decimal = static::create($value);
         $scale = max($this->scale(), $decimal->scale());
 
-        return bccomp($this, $decimal, $scale);
+        return bccomp($this->toNumericString(), $decimal->toNumericString(), $scale);
     }
 
     /**
@@ -258,7 +258,7 @@ class Decimal implements JsonSerializable
         $decimal = static::create($value);
         $scale = $this->resultScale($this, $decimal, $scale);
 
-        return new static(bcadd($this, $decimal, $scale));
+        return new static(bcadd($this->toNumericString(), $decimal->toNumericString(), $scale));
     }
 
     /**
@@ -296,7 +296,7 @@ class Decimal implements JsonSerializable
         $decimal = static::create($value);
         $scale = $this->resultScale($this, $decimal, $scale);
 
-        return new static(bcsub($this, $decimal, $scale));
+        return new static(bcsub($this->toNumericString(), $decimal->toNumericString(), $scale));
     }
 
     /**
@@ -406,7 +406,7 @@ class Decimal implements JsonSerializable
             $scale = $this->scale() + $decimal->scale();
         }
 
-        return new static(bcmul($this, $decimal, $scale));
+        return new static(bcmul($this->toNumericString(), $decimal->toNumericString(), $scale));
     }
 
     /**
@@ -426,7 +426,7 @@ class Decimal implements JsonSerializable
             throw new DivisionByZeroError('Cannot divide by zero. Only Chuck Norris can!');
         }
 
-        return new static(bcdiv($this, $decimal, $scale));
+        return new static(bcdiv($this->toNumericString(), $decimal->toNumericString(), $scale));
     }
 
     /**
@@ -443,7 +443,10 @@ class Decimal implements JsonSerializable
             $scale = $this->scale();
         }
 
-        return new static(bcpow($this, (string)$exponent, $scale));
+        /** @var numeric-string $exp */
+        $exp = (string)$exponent;
+
+        return new static(bcpow($this->toNumericString(), $exp, $scale));
     }
 
     /**
@@ -459,7 +462,7 @@ class Decimal implements JsonSerializable
             $scale = $this->scale();
         }
 
-        return new static(bcsqrt($this, $scale));
+        return new static(bcsqrt($this->toNumericString(), $scale));
     }
 
     /**
@@ -475,11 +478,10 @@ class Decimal implements JsonSerializable
         if ($scale === null) {
             $scale = $this->scale();
         }
-        if (version_compare(PHP_VERSION, '7.2') < 0) {
-            return new static(bcmod($this, (string)$value));
-        }
+        /** @var numeric-string $mod */
+        $mod = (string)$value;
 
-        return new static(bcmod($this, (string)$value, $scale));
+        return new static(bcmod($this->toNumericString(), $mod, $scale));
     }
 
     /**
@@ -492,19 +494,21 @@ class Decimal implements JsonSerializable
     {
         $exponent = $scale + 1;
 
+        /** @var numeric-string $e */
         $e = bcpow('10', (string)$exponent);
+        $self = $this->toNumericString();
         switch ($roundMode) {
             case static::ROUND_FLOOR:
-                $v = bcdiv(bcadd(bcmul($this, $e, 0), $this->isNegative() ? '-9' : '0'), $e, 0);
+                $v = bcdiv(bcadd(bcmul($self, $e, 0), $this->isNegative() ? '-9' : '0'), $e, 0);
 
                 break;
             case static::ROUND_CEIL:
-                $v = bcdiv(bcadd(bcmul($this, $e, 0), $this->isNegative() ? '0' : '9'), $e, 0);
+                $v = bcdiv(bcadd(bcmul($self, $e, 0), $this->isNegative() ? '0' : '9'), $e, 0);
 
                 break;
             case static::ROUND_HALF_UP:
             default:
-                $v = bcdiv(bcadd(bcmul($this, $e, 0), $this->isNegative() ? '-5' : '5'), $e, $scale);
+                $v = bcdiv(bcadd(bcmul($self, $e, 0), $this->isNegative() ? '-5' : '5'), $e, $scale);
         }
 
         return new static($v);
@@ -593,7 +597,14 @@ class Decimal implements JsonSerializable
      */
     public function isBigInteger(): bool
     {
-        return bccomp($this->integralPart, (string)PHP_INT_MAX) === 1 || bccomp($this->integralPart, (string)PHP_INT_MIN) === -1;
+        /** @var numeric-string $integral */
+        $integral = $this->integralPart;
+        /** @var numeric-string $max */
+        $max = (string)PHP_INT_MAX;
+        /** @var numeric-string $min */
+        $min = (string)PHP_INT_MIN;
+
+        return bccomp($integral, $max) === 1 || bccomp($integral, $min) === -1;
     }
 
     /**
@@ -601,8 +612,15 @@ class Decimal implements JsonSerializable
      */
     public function isBigDecimal(): bool
     {
+        /** @var numeric-string $fractional */
+        $fractional = $this->fractionalPart;
+        /** @var numeric-string $max */
+        $max = (string)PHP_INT_MAX;
+        /** @var numeric-string $min */
+        $min = (string)PHP_INT_MIN;
+
         return $this->isBigInteger() ||
-            bccomp($this->fractionalPart, (string)PHP_INT_MAX) === 1 || bccomp($this->fractionalPart, (string)PHP_INT_MIN) === -1;
+            bccomp($fractional, $max) === 1 || bccomp($fractional, $min) === -1;
     }
 
     /**
@@ -683,6 +701,15 @@ class Decimal implements JsonSerializable
      */
     public function __toString(): string
     {
+        return $this->toString();
+    }
+
+    /**
+     * @return numeric-string
+     */
+    protected function toNumericString(): string
+    {
+        /** @var numeric-string */
         return $this->toString();
     }
 
@@ -829,7 +856,11 @@ class Decimal implements JsonSerializable
                 $this->fractionalPart = str_pad($this->fractionalPart, $scale, '0');
             }
         } else {
-            $this->integralPart = bcmul($matches[2], bcpow('10', (string)$exp));
+            /** @var numeric-string $matchValue */
+            $matchValue = $matches[2];
+            /** @var numeric-string $multiplier */
+            $multiplier = bcpow('10', (string)$exp);
+            $this->integralPart = bcmul($matchValue, $multiplier);
 
             $pos = strlen((string)$this->integralPart);
             if (strpos($value, '.') !== false) {
