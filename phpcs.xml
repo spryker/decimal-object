@@ -7,6 +7,12 @@
         All sniffs in ./Sniffs will be auto loaded
     </description>
 
+    <arg name="tab-width" value="4"/>
+    <arg value="nps"/>
+
+    <file>src/</file>
+    <file>tests/</file>
+
     <rule ref="vendor/spryker/code-sniffer/SprykerStrict/ruleset.xml"/>
 
     <rule ref="PSR2.Methods.MethodDeclaration.Underscore">
@@ -15,7 +21,5 @@
     <rule ref="PSR2.Classes.PropertyDeclaration.Underscore">
         <severity>0</severity>
     </rule>
-
-    <!-- Define your own sniffs here -->
 
 </ruleset>
