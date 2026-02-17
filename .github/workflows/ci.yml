@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-version: ['8.1', '8.3']
+        php-version: ['8.3']
 
     steps:
     - uses: actions/checkout@v3
@@ -24,6 +24,8 @@ jobs:
         php-version: ${{ matrix.php-version }}
         extensions: mbstring, intl, bcmath
         coverage: pcov
+        ini-values: |
+          apc.enable_cli=1
 
     - name: Composer install
       run: |
@@ -32,14 +34,13 @@ jobs:
 
     - name: Run PHPUnit
       run: |
-        if [[ ${{ matrix.php-version }} == '8.1' ]]; then
+        if [[ ${{ matrix.php-version }} == '8.2' ]]; then
           vendor/bin/phpunit --coverage-clover=coverage.xml
         else
           vendor/bin/phpunit
         fi
 
     - name: Code Coverage Report
-      if: success() && matrix.php-version == '8.1'
       uses: codecov/codecov-action@v1
 
   validation:
@@ -52,9 +53,11 @@ jobs:
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.2'
+        php-version: '8.3'
         extensions: mbstring, intl, bcmath
         coverage: none
+        ini-values: |
+          apc.enable_cli=1
 
     - name: Composer Install
       run: composer install
