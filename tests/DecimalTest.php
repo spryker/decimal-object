@@ -24,6 +24,7 @@ class DecimalTest extends TestCase
      *
      * @return void
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('baseProvider')]
     public function testNewObject($value, string $expected): void
     {
         $decimal = new Decimal($value);
@@ -51,6 +52,7 @@ class DecimalTest extends TestCase
      *
      * @return void
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('baseProvider')]
     public function testCreate($value, string $expected): void
     {
         $decimal = Decimal::create($value);
@@ -60,7 +62,7 @@ class DecimalTest extends TestCase
     /**
      * @return array
      */
-    public function baseProvider(): array
+    public static function baseProvider(): array
     {
         $objectWithToStringMethod = new class
         {
@@ -111,6 +113,7 @@ class DecimalTest extends TestCase
      *
      * @return void
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('invalidValuesProvider')]
     public function testNewObjectWithInvalidValueThrowsException($value): void
     {
         $this->expectException(InvalidArgumentException::class);
@@ -121,7 +124,7 @@ class DecimalTest extends TestCase
     /**
      * @return array
      */
-    public function invalidValuesProvider(): array
+    public static function invalidValuesProvider(): array
     {
         return [
             'invalid string' => ['xyz'],
@@ -141,6 +144,7 @@ class DecimalTest extends TestCase
      *
      * @return void
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('truncateProvider')]
     public function testTruncate($input, int $scale, string $expected): void
     {
         $decimal = Decimal::create($input);
@@ -150,7 +154,7 @@ class DecimalTest extends TestCase
     /**
      * @return array
      */
-    public function truncateProvider(): array
+    public static function truncateProvider(): array
     {
         return [
             [0, 0, '0'],
@@ -170,6 +174,7 @@ class DecimalTest extends TestCase
      *
      * @return void
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('integerProvider')]
     public function testIsInteger($value, bool $expected): void
     {
         $decimal = Decimal::create($value);
@@ -179,7 +184,7 @@ class DecimalTest extends TestCase
     /**
      * @return array
      */
-    public function integerProvider(): array
+    public static function integerProvider(): array
     {
         return [
             [5, true],
@@ -203,6 +208,7 @@ class DecimalTest extends TestCase
      *
      * @return void
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('zeroProvider')]
     public function testIsZero($value, bool $expected): void
     {
         $decimal = Decimal::create($value);
@@ -212,7 +218,7 @@ class DecimalTest extends TestCase
     /**
      * @return array
      */
-    public function zeroProvider(): array
+    public static function zeroProvider(): array
     {
         return [
             [5, false],
@@ -235,6 +241,7 @@ class DecimalTest extends TestCase
      *
      * @return void
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('compareZeroProvider')]
     public function testIsPositive($input, int $expected): void
     {
         $decimal = Decimal::create($input);
@@ -249,6 +256,7 @@ class DecimalTest extends TestCase
      *
      * @return void
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('compareZeroProvider')]
     public function testIsNegative($input, int $expected): void
     {
         $decimal = Decimal::create($input);
@@ -258,7 +266,7 @@ class DecimalTest extends TestCase
     /**
      * @return array
      */
-    public function compareZeroProvider(): array
+    public static function compareZeroProvider(): array
     {
         return [
             [0, 0],
@@ -284,6 +292,7 @@ class DecimalTest extends TestCase
      *
      * @return void
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('scaleProvider')]
     public function testScale($input, int $expected): void
     {
         $decimal = Decimal::create($input);
@@ -293,7 +302,7 @@ class DecimalTest extends TestCase
     /**
      * @return array
      */
-    public function scaleProvider(): array
+    public static function scaleProvider(): array
     {
         return [
             [0, 0],
@@ -316,6 +325,7 @@ class DecimalTest extends TestCase
      *
      * @return void
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('scientificProvider')]
     public function testToScientific($value, string $expected): void
     {
         $decimal = Decimal::create($value);
@@ -327,7 +337,7 @@ class DecimalTest extends TestCase
     /**
      * @return array
      */
-    public function scientificProvider(): array
+    public static function scientificProvider(): array
     {
         return [
             ['-23', '-2.3e1'],
@@ -390,12 +400,13 @@ class DecimalTest extends TestCase
      *
      * @return void
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('bigFloatDataProvider')]
     public function testToFloatForBigDecimalThrowsAnException(string $value): void
     {
         $decimal = Decimal::create($value);
 
         $this->expectException(TypeError::class);
-        $this->expectErrorMessage('Cannot cast Big Decimal to Float');
+        $this->expectExceptionMessage('Cannot cast Big Decimal to Float');
 
         $result = $decimal->toFloat();
     }
@@ -403,7 +414,7 @@ class DecimalTest extends TestCase
     /**
      * @return array
      */
-    public function bigFloatDataProvider(): array
+    public static function bigFloatDataProvider(): array
     {
         return [
             'positive' => ['2.6' . PHP_INT_MAX],
@@ -430,12 +441,13 @@ class DecimalTest extends TestCase
      *
      * @return void
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('bigIntDataProvider')]
     public function testToIntForBigIntThrowsAnException(string $value): void
     {
         $decimal = Decimal::create($value);
 
         $this->expectException(TypeError::class);
-        $this->expectErrorMessage('Cannot cast Big Integer to Integer');
+        $this->expectExceptionMessage('Cannot cast Big Integer to Integer');
 
         $decimal->toInt();
     }
@@ -443,7 +455,7 @@ class DecimalTest extends TestCase
     /**
      * @return array
      */
-    public function bigIntDataProvider(): array
+    public static function bigIntDataProvider(): array
     {
         return [
             'positive' => ['9' . PHP_INT_MAX],
@@ -586,6 +598,7 @@ class DecimalTest extends TestCase
      *
      * @return void
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('roundProvider')]
     public function testRound($value, int $scale, string $expected): void
     {
         $decimal = Decimal::create($value);
@@ -609,7 +622,7 @@ class DecimalTest extends TestCase
     /**
      * @return array
      */
-    public function roundProvider(): array
+    public static function roundProvider(): array
     {
         return [
             [0, 0, '0'],
@@ -637,6 +650,7 @@ class DecimalTest extends TestCase
      *
      * @return void
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('floorProvider')]
     public function testFloor($value, string $expected): void
     {
         $decimal = Decimal::create($value);
@@ -658,7 +672,7 @@ class DecimalTest extends TestCase
     /**
      * @return array
      */
-    public function floorProvider(): array
+    public static function floorProvider(): array
     {
         return [
             [0, '0'],
@@ -684,6 +698,7 @@ class DecimalTest extends TestCase
      *
      * @return void
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('ceilProvider')]
     public function testCeil($value, string $expected): void
     {
         $decimal = Decimal::create($value);
@@ -705,7 +720,7 @@ class DecimalTest extends TestCase
     /**
      * @return array
      */
-    public function ceilProvider(): array
+    public static function ceilProvider(): array
     {
         return [
             [0, '0'],
@@ -732,6 +747,7 @@ class DecimalTest extends TestCase
      *
      * @return void
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('compareProvider')]
     public function testGreaterThan($a, $b, int $expected): void
     {
         $decimal = Decimal::create($a);
@@ -747,6 +763,7 @@ class DecimalTest extends TestCase
      *
      * @return void
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('compareProvider')]
     public function testLessThan($a, $b, int $expected): void
     {
         $decimal = Decimal::create($a);
@@ -762,6 +779,7 @@ class DecimalTest extends TestCase
      *
      * @return void
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('compareProvider')]
     public function testGreaterEquals($a, $b, int $expected): void
     {
         $decimal = Decimal::create($a);
@@ -777,6 +795,7 @@ class DecimalTest extends TestCase
      *
      * @return void
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('compareProvider')]
     public function testLessEquals($a, $b, int $expected): void
     {
         $decimal = Decimal::create($a);
@@ -786,7 +805,7 @@ class DecimalTest extends TestCase
     /**
      * @return array
      */
-    public function compareProvider(): array
+    public static function compareProvider(): array
     {
         return [
             [0, 0, 0],
@@ -842,6 +861,7 @@ class DecimalTest extends TestCase
      *
      * @return void
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('multiplicationProvider')]
     public function testMultiply($a, $b, ?int $scale, string $expected): void
     {
         $decimal = Decimal::create($a);
@@ -851,7 +871,7 @@ class DecimalTest extends TestCase
     /**
      * @return array
      */
-    public function multiplicationProvider(): array
+    public static function multiplicationProvider(): array
     {
         return [
             ['0', '0', null, '0'],
@@ -882,6 +902,7 @@ class DecimalTest extends TestCase
      *
      * @return void
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('multiplicationLegacyProvider')]
     public function testMultiplyLegacy($a, $b, ?int $scale, string $expected): void
     {
         $decimal = Decimal::create($a);
@@ -891,7 +912,7 @@ class DecimalTest extends TestCase
     /**
      * @return array
      */
-    public function multiplicationLegacyProvider(): array
+    public static function multiplicationLegacyProvider(): array
     {
         return [
             ['0', '0', 3, version_compare(PHP_VERSION, '7.3') < 0 ? '0' : '0.000'],
@@ -908,6 +929,7 @@ class DecimalTest extends TestCase
      *
      * @return void
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('divisionProvider')]
     public function testDivide($a, $b, int $scale, string $expected): void
     {
         $decimal = Decimal::create($a);
@@ -917,7 +939,7 @@ class DecimalTest extends TestCase
     /**
      * @return array
      */
-    public function divisionProvider(): array
+    public static function divisionProvider(): array
     {
         return [
             ['0', '1', 0, '0'],
