@@ -2,6 +2,7 @@ parameters:
     level: 8
     paths:
         - src/
-    checkMissingIterableValueType: false
     ignoreErrors:
         - '#Unsafe usage of new static\(\).#'
+        -
+            identifier: missingType.iterableValue
